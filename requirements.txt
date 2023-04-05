@@ -4,6 +4,4 @@ streamlit==1.20.0
 ultralyticsplus==0.0.24 
 ultralytics==8.0.23
 
-torch==2.0.0
-torchaudio==2.0.0
-torchvision==0.15.0
+torch==1.7.0
