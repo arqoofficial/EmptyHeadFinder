@@ -1,16 +1,11 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import time
-
 from ultralyticsplus import YOLO, render_result
 
 st.set_page_config(
-    layout="centered", 
-    page_title="Model configuration", 
+    layout="centered",
+    page_title="Model configuration",
     page_icon="🛎"
-)   # Полнооконное представление приложения
-
+)  # Полнооконное представление приложения
 
 st.write("# Model configuration 👨🏾‍🔧")
 st.write("___")
@@ -21,7 +16,7 @@ st.write("* n - the fastest, but small model")
 
 option = st.selectbox(
     "**Which model would you choose?**",
-    ["m - slow", "s - faster", "n - the fastes"]
+    ["m - slow", "s - faster", "n - the fastest"]
 )
 
 f"You selected: {option}"
@@ -35,8 +30,10 @@ if option_selected:
         return YOLO(
             f"keremberke/yolov8{option_selected}-hard-hat-detection"
         )
-                        
+
     model = load_model()
+else:
+    model = YOLO("keremberke/yolov8n-hard-hat-detection")
 
 st.write("___")
 st.write("## Set model parameters")
@@ -64,8 +61,8 @@ agnostic_nms = st.selectbox(
     [False, True]
 )
 
-model.overrides["conf"] = conf/100  # NMS confidence threshold
-model.overrides["iou"] = iou/100  # NMS IoU threshold
+model.overrides["conf"] = conf / 100  # NMS confidence threshold
+model.overrides["iou"] = iou / 100  # NMS IoU threshold
 model.overrides["agnostic_nms"] = agnostic_nms  # NMS class-agnostic
 model.overrides["max_det"] = max_det  # maximum number of detections per image
 
@@ -76,49 +73,49 @@ helper = """
 Here you should paste correct URL of the photo you want to analyze
 """
 image = st.text_input(
-    "Input your image URL", 
-    value="", 
-    max_chars=None, 
-    key=None, 
-    type="default", 
-    help=helper, 
-    autocomplete=None, 
-    on_change=None, 
-    args=None, 
-    kwargs=None, 
-    placeholder=None, 
-    disabled=False, 
+    "Input your image URL",
+    value="",
+    max_chars=None,
+    key=None,
+    type="default",
+    help=helper,
+    autocomplete=None,
+    on_change=None,
+    args=None,
+    kwargs=None,
+    placeholder=None,
+    disabled=False,
     label_visibility="visible"
 )
 
 analyze_button = st.button(
-    "Analyze! 🎲", 
-    key=None, 
-    help=None, 
-    on_click=None, 
-    args=None, 
-    kwargs=None, 
-    type="secondary", 
-    disabled=False, 
+    "Analyze! 🎲",
+    key=None,
+    help=None,
+    on_click=None,
+    args=None,
+    kwargs=None,
+    type="secondary",
+    disabled=False,
     use_container_width=False
 )
 
 if analyze_button:
     results = model.predict(image)
     render = render_result(
-        model=model, 
-        image=image, 
+        model=model,
+        image=image,
         result=results[0]
     )
-    
+
     st.write("___")
     st.write("## Analysed image ✅")
     st.image(
-        render, 
-        caption=None, 
-        width=None, 
-        use_column_width=None, 
-        clamp=False, 
-        channels="RGB", 
+        render,
+        caption=None,
+        width=None,
+        use_column_width=None,
+        clamp=False,
+        channels="RGB",
         output_format="auto"
     )
