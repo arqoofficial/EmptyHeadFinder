@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
 import os
@@ -23,8 +23,8 @@ def clear():
     global out_path
     files = ""
     out_path = ""
-    filename.delete(0, END)
-    pathname.delete(0, END)
+    filename.delete(0, tk.END)
+    pathname.delete(0, tk.END)
 
 
 def insert_files():
@@ -50,7 +50,7 @@ def insert_path():
     Выбранную директорию записывает в глобальную переменную.
     """
     global out_path
-    pathname.delete(0, END)
+    pathname.delete(0, tk.END)
     out_path = fd.askdirectory()
     pathname.insert(0, out_path)
 
@@ -62,7 +62,7 @@ def video_stats(vid_capture):
     а также размеры кадра, возвращаем эти параметры в виде кортежа
     """
     if vid_capture.isOpened() is False:
-        print("Ошибка открытия видеофайла")
+        return "Ошибка открытия видеофайла"
     # Чтение fps и количества кадров
     else:
         # Получить информацию о частоте кадров
@@ -75,8 +75,7 @@ def video_stats(vid_capture):
         print("Количество кадров: ", frame_count)
         frame_width = int(vid_capture.get(3))
         frame_height = int(vid_capture.get(4))
-
-    return frame_width, frame_height
+        return frame_width, frame_height
 
 
 def detect(img, cnt):
@@ -193,91 +192,91 @@ out_path = ""
 model = None
 
 # Инициализация основного диалогового окна и его основные параметры
-root = Tk()
+root = tk.Tk()
 root.geometry("500x350")
 root.title("Зоркий глаз")
 
 # Изображение в левом верхнем углу
-img_file = PhotoImage(file="image.png")
-Button(root, image=img_file, command=about).grid(
-    row=0, column=0, columnspan=2, rowspan=8
-)
+img_file = tk.PhotoImage(file="image.png")
+tk.Button(root, image=img_file, command=about).grid(
+          row=0, column=0, columnspan=2, rowspan=8
+        )
 
 # Селектор выбора используемой модели
-Label(text="Размер модели:").grid(row=0, column=2, sticky=N, padx=10)
-model_size = StringVar()
+tk.Label(text="Размер модели:").grid(row=0, column=2, sticky=tk.N, padx=10)
+model_size = tk.StringVar()
 model_size.set("keremberke/yolov8m-hard-hat-detection")
-base = Radiobutton(
+base = tk.Radiobutton(
     text="Базовая", variable=model_size,
     value="keremberke/yolov8n-hard-hat-detection"
 )
-small = Radiobutton(
+small = tk.Radiobutton(
     text="Малая", variable=model_size,
     value="keremberke/yolov8s-hard-hat-detection"
 )
-medium = Radiobutton(
+medium = tk.Radiobutton(
     text="Средняя", variable=model_size,
     value="keremberke/yolov8m-hard-hat-detection"
 )
-large = Radiobutton(
+large = tk.Radiobutton(
     text="Большая", variable=model_size,
     value="keremberke/yolov8l-hard-hat-detection"
 )
-base.grid(row=1, column=2, sticky=W, padx=10)
-small.grid(row=2, column=2, sticky=W, padx=10)
-medium.grid(row=3, column=2, sticky=W, padx=10)
-large.grid(row=4, column=2, sticky=W, padx=10)
+base.grid(row=1, column=2, sticky=tk.W, padx=10)
+small.grid(row=2, column=2, sticky=tk.W, padx=10)
+medium.grid(row=3, column=2, sticky=tk.W, padx=10)
+large.grid(row=4, column=2, sticky=tk.W, padx=10)
 
 # Селектор выбора типа вывода
-Label(text="Обработка моделью:").grid(row=0, column=3, sticky=N, padx=10)
-process_speed = IntVar()
+tk.Label(text="Обработка моделью:").grid(row=0, column=3, sticky=tk.N, padx=10)
+process_speed = tk.IntVar()
 process_speed.set(1)
-x1 = Radiobutton(text="каждый кадр", variable=process_speed, value=1)
-x2 = Radiobutton(text="каждый 2-й", variable=process_speed, value=2)
-x4 = Radiobutton(text="каждый 4-й", variable=process_speed, value=4)
-x8 = Radiobutton(text="каждый 8-й", variable=process_speed, value=8)
-x1.grid(row=1, column=3, sticky=W, padx=10)
-x2.grid(row=2, column=3, sticky=W, padx=10)
-x4.grid(row=3, column=3, sticky=W, padx=10)
-x8.grid(row=4, column=3, sticky=W, padx=10)
+x1 = tk.Radiobutton(text="каждый кадр", variable=process_speed, value=1)
+x2 = tk.Radiobutton(text="каждый 2-й", variable=process_speed, value=2)
+x4 = tk.Radiobutton(text="каждый 4-й", variable=process_speed, value=4)
+x8 = tk.Radiobutton(text="каждый 8-й", variable=process_speed, value=8)
+x1.grid(row=1, column=3, sticky=tk.W, padx=10)
+x2.grid(row=2, column=3, sticky=tk.W, padx=10)
+x4.grid(row=3, column=3, sticky=tk.W, padx=10)
+x8.grid(row=4, column=3, sticky=tk.W, padx=10)
 
 # Выбор файлов для расшифровки (метка и кнопка)
-Label(text="").grid(row=8, column=0, sticky=W, padx=10, columnspan=4)
-Label(text="Выберите файлы для расшифровки:").grid(
-    row=9, column=0, sticky=W, padx=10, columnspan=4
+tk.Label(text="").grid(row=8, column=0, sticky=tk.W, padx=10, columnspan=4)
+tk.Label(text="Выберите файлы для расшифровки:").grid(
+    row=9, column=0, sticky=tk.W, padx=10, columnspan=4
 )
-filename = Entry(width=35)
-filename.grid(row=10, column=0, sticky=W, padx=10, columnspan=4)
-Button(text="Выбрать файлы", width=15, command=insert_files).grid(
-    row=10, column=3, sticky=S, padx=10
+filename = tk.Entry(width=35)
+filename.grid(row=10, column=0, sticky=tk.W, padx=10, columnspan=4)
+tk.Button(text="Выбрать файлы", width=15, command=insert_files).grid(
+    row=10, column=3, sticky=tk.S, padx=10
 )
 
 # Выбор пути вывода результатов
-Label(text="Выберите путь вывода результатов:").grid(
-    row=12, column=0, sticky=W, padx=10, columnspan=4
+tk.Label(text="Выберите путь вывода результатов:").grid(
+    row=12, column=0, sticky=tk.W, padx=10, columnspan=4
 )
-pathname = Entry(width=35)
-pathname.grid(row=13, column=0, sticky=W, padx=10, columnspan=4)
-Button(text="Выбрать путь", width=15, command=insert_path).grid(
-    row=13, column=3, sticky=S, padx=10
+pathname = tk.Entry(width=35)
+pathname.grid(row=13, column=0, sticky=tk.W, padx=10, columnspan=4)
+tk.Button(text="Выбрать путь", width=15, command=insert_path).grid(
+    row=13, column=3, sticky=tk.S, padx=10
 )
 
 # Чекбокс типа отображения процесса расшифровки
-Label(text="").grid(row=14, column=0, sticky=W, padx=10, columnspan=4)
-show_vid = BooleanVar()
+tk.Label(text="").grid(row=14, column=0, sticky=tk.W, padx=10, columnspan=4)
+show_vid = tk.BooleanVar()
 show_vid.set("False")
-show_vid_check = Checkbutton(
+show_vid_check = tk.Checkbutton(
     root,
     text="Показывать видео нарушений",
     variable=show_vid,
     onvalue="True",
     offvalue="False",
 )
-show_vid_check.grid(row=15, column=0, sticky=W, padx=10, columnspan=4)
+show_vid_check.grid(row=15, column=0, sticky=tk.W, padx=10, columnspan=4)
 
 # Главная красная кнопка
-start_button = Button(text="Старт обработки", width=15, command=start)
+start_button = tk.Button(text="Старт обработки", width=15, command=start)
 start_button["bg"] = "#fa4400"
-start_button.grid(row=15, column=3, sticky=S, padx=10)
+start_button.grid(row=15, column=3, sticky=tk.S, padx=10)
 
 root.mainloop()
