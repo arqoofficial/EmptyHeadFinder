@@ -3,25 +3,44 @@ import cv2
 import os
 
 
-def load_model(model_size):
+def load_model(
+    model_size: str = "m",
+    conf: int = 25,
+    iou: int = 45,
+    agnostic_nms: bool = False,
+    max_det: int = 1000
+) -> YOLO:
     """
     Функция используется для загрузки модели yolo8 для последующей обработки
-    кадров видеоряда с её помощью. Реализуется в виде функции с присвоением
-    объекта модели в глобальную переменную чтобы реализовать возможность
-    выбора размера модели (передается в параметрах), а также обеспечить
-    её использование в других функциях модуля
-    """
-    global model
+    фото или кадров видеоряда с её помощью.
+    
+    Args:
+        model_size (str, optional): Choose size of model from ["n", "s", "m"]. Defaults to "m".
+        conf (int, optional): NMS confidence threshold. Defaults to 25.
+        iou (int, optional): NMS IoU threshold. Defaults to 45.
+        agnostic_nms (bool, optional): NMS class-agnostic. Defaults to False.
+        max_det (int, optional): Maximum number of detections per image. Defaults to 1000.
 
-    model = YOLO(model_size)
+    Raises:
+        ValueError: if you choose wrong model size raises ValueError
+
+    Returns:
+        YOLO: Object of YOLO class - model for hardhat detection
+    """
+    sizes_list = ["n", "s", "m"]
+    # global model
+    if model_size in sizes_list:
+        model = YOLO(f"keremberke/yolov8{model_size}-hard-hat-detection")
+    else:
+        raise ValueError(f"Choose from these options {sizes_list}")
 
     # Установка параметров модели
-    model.overrides["conf"] = 0.25  # NMS confidence threshold
-    model.overrides["iou"] = 0.45  # NMS IoU threshold
-    model.overrides["agnostic_nms"] = False  # NMS class-agnostic
-    model.overrides["max_det"] = 1000  # maximum number of detections per image
+    model.overrides["conf"] = conf/100  # NMS confidence threshold
+    model.overrides["iou"] = iou/100  # NMS IoU threshold
+    model.overrides["agnostic_nms"] = agnostic_nms  # NMS class-agnostic
+    model.overrides["max_det"] = max_det  # maximum number of detections per image
 
-    return "Ok"
+    return model
 
 
 def video_stats(vid_capture):
@@ -65,7 +84,13 @@ def detect(img):
     return no_hardhat_person, hardhat_person
 
 
-def video_processing(files, model_size, process_speed, show_vid, out_path):
+def video_processing(
+    files, 
+    model_size, 
+    process_speed, 
+    show_vid, 
+    out_path
+):
     """
     Основная функция обработки видео. В качестве параметров получает:
     список файлов, размер модели, скорость обработки, флаг для показа видео
@@ -140,7 +165,7 @@ def video_processing(files, model_size, process_speed, show_vid, out_path):
 
 if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
 
-    load_model("keremberke/yolov8m-hard-hat-detection")
+    model = load_model(model_size="m")
     img = cv2.imread("1212.jpeg")
     no_hardhat_person, hardhat_person = detect(img)
     print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
