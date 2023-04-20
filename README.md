@@ -12,7 +12,9 @@
 Используемые модели:
 
 https://huggingface.co/keremberke/yolov8n-hard-hat-detection
+
 https://huggingface.co/keremberke/yolov8s-hard-hat-detection
+
 https://huggingface.co/keremberke/yolov8m-hard-hat-detection
 
 Пример работы модели на картинке:
