@@ -15,4 +15,4 @@ https://huggingface.co/keremberke/yolov8m-hard-hat-detection
 
 Пример работы модели на картинке:
 
-<img src = 'https://github.com/arqoofficial/EmptyHeadFinder/blob/main/1212.jpeg' alt = 'analysed image' align='left'/>
+<img src = 'https://github.com/YaRoLit/EmptyHeadFinder/blob/main/stroiteli_analysed.jpg' alt = 'analysed image' align='left'/>
