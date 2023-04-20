@@ -10,7 +10,9 @@
 - Охотников Павел (PavelOkh)
 
 Используемая модель:
+
 https://huggingface.co/keremberke/yolov8m-hard-hat-detection
 
 Пример работы модели на картинке:
-![img](https://github.com/YaRoLit/EmptyHeadFinder/tree/main/images/stroiteli_analysed.jpg)
+
+<img src = 'https://github.com/YaRoLit/EmptyHeadFinder/tree/main/images/stroiteli_analysed.jpg' alt = 'analysed image' align='left'/>
