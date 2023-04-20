@@ -2,8 +2,7 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
 import os
-from ultralyticsplus import YOLO
-import cv2
+import video_proc
 
 
 def about():
@@ -11,7 +10,7 @@ def about():
     Вывод информационного окна о приложении.
     Вызывается по кнопке-картинке в левом верхнем углу.
     """
-    mb.showinfo("О программе", "Здесь нужно что-то написать...")
+    mb.showinfo("О программе", "УрФУ + Скиллфактори forever!")
 
 
 def clear():
@@ -55,49 +54,6 @@ def insert_path():
     pathname.insert(0, out_path)
 
 
-def video_stats(vid_capture):
-    """
-    Определяем параметры видеофайла:
-    количество кадров и скорость воспроизведения (кадр/сек)
-    а также размеры кадра, возвращаем эти параметры в виде кортежа
-    """
-    if vid_capture.isOpened() is False:
-        return "Ошибка открытия видеофайла"
-    # Чтение fps и количества кадров
-    else:
-        # Получить информацию о частоте кадров
-        # Можно заменить 5 на CAP_PROP_FPS, это перечисления
-        fps = vid_capture.get(5)
-        print("Фреймов в секунду: ", fps, "FPS")
-        # Получить количество кадров
-        # Можно заменить 7 на CAP_PROP_FRAME_COUNT, это перечисления
-        frame_count = vid_capture.get(7)
-        print("Количество кадров: ", frame_count)
-        frame_width = int(vid_capture.get(3))
-        frame_height = int(vid_capture.get(4))
-        return frame_width, frame_height
-
-
-def detect(img, cnt):
-    """
-    Функция обработки yolo8 для определения наличия на нём людей без каски
-    Принимает в качестве аргумента изображение (кадр из видеоряда)
-    При обнаружении нужного нам объекта возвращает номер кадра,
-    вероятность, координаты ограничивающей рамки
-    """
-    results = model.predict(img)
-    # Перебираем тензоры в целях обнаружения нужных нам объектов
-    for box in results[0].boxes:
-        # Вытаскиваем значения класса и вероятности распознанных объектов
-        cls = int(box.cls)
-        # Если нужный нам класс, то возвращаем его номер,
-        # вероятность обнаружения объекта, координаты бокса
-        if cls == 1:
-            return cnt, float(box.conf), box.xyxy.tolist()
-        else:
-            return False
-
-
 def start():
     """
     Запуск модуля ... с выбранными параметрами.
@@ -110,78 +66,11 @@ def start():
         mb.showerror("Ошибка", "Выберите путь для записи результатов")
         return
 
-    # Загрузка модели в соответствии с пользовательским выбором
-    # (!!!!тут где-то нужно сделать кэширование моделей)
-    global model
-    model = YOLO(model_size.get())
-
-    # Установка параметров модели
-    model.overrides["conf"] = 0.25  # NMS confidence threshold
-    model.overrides["iou"] = 0.45  # NMS IoU threshold
-    model.overrides["agnostic_nms"] = False  # NMS class-agnostic
-    model.overrides["max_det"] = 1000  # maximum number of detections per image
-
-    for file in files:
-        # Захватываем видеозапись в объект
-        vid_capture = cv2.VideoCapture(file)
-        # Выводим статистику по видеофайлу
-        frame_size = video_stats(vid_capture)
-        # Определяем имя для видеофайла-отчёта
-        path, filename = os.path.split(file)
-        out_file = "out_" + filename
-        print(out_file)
-        output = cv2.VideoWriter(
-            out_path + "/" + out_file,
-            cv2.VideoWriter_fourcc(*"XVID"),
-            20, frame_size
-        )
-
-        # счётчик кадров
-        cnt = 0
-        # множитель ускорения перемотки видео (х1...х6)
-        mlt = process_speed.get()
-        # счетчик замедлителя
-        abv = 0
-
-        while vid_capture.isOpened():
-            # Метод vid_capture.read() возвращают кортеж,
-            # первым элементом является логическое значение, а вторым кадр
-            ret, frame = vid_capture.read()
-
-            if ret:
-                cnt += 1
-
-                # Если на видео будет обнаружен объект без каски,
-                # с этого момента начинается запись abv количества кадров
-                # в выходной видеофайл. Это сделано, чтобы в видео сохранялись
-                # не единичные картинки, а полноценный видеоряд
-                if abv <= 0:
-                    if (cnt % mlt) == 0:
-                        obj = detect(frame, cnt)
-                        if obj:
-                            # Тут указываем, сколько кадров сохранить в файле
-                            # с моментa обнаружения нарушения
-                            abv = 60
-                else:
-                    # Выводим видео с нарушениями (если есть соответствующая
-                    # галочка в диалоговом окне)
-                    if show_vid.get():
-                        cv2.imshow("NoHardHat", frame)
-                    # Пишем видео в файл
-                    output.write(frame)
-                    # Уменьшаем счётчик
-                    abv -= 1
-
-                key = cv2.waitKey(1)
-
-                if (key == ord("q")) or key == 27:
-                    break
-            else:
-                break
-
-        # Освободить объект захвата видео
-        vid_capture.release()
-        cv2.destroyAllWindows()
+    video_proc.video_processing(files,
+                                model_size.get(),
+                                process_speed.get(),
+                                show_vid.get(),
+                                out_path)
 
     clear()
 
@@ -189,7 +78,7 @@ def start():
 # Глобальные переменные (я не нашёл способа обойтись без них)
 files = ""
 out_path = ""
-model = None
+
 
 # Инициализация основного диалогового окна и его основные параметры
 root = tk.Tk()
@@ -275,7 +164,8 @@ show_vid_check = tk.Checkbutton(
 show_vid_check.grid(row=15, column=0, sticky=tk.W, padx=10, columnspan=4)
 
 # Главная красная кнопка
-start_button = tk.Button(text="Старт обработки", width=15, command=start)
+start_button = tk.Button(text="Старт обработки",
+                         width=15, command=start)
 start_button["bg"] = "#fa4400"
 start_button.grid(row=15, column=3, sticky=tk.S, padx=10)
 

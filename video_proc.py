@@ -1,5 +1,6 @@
 from ultralyticsplus import YOLO
 import cv2
+import os
 
 
 def load_model(model_size):
@@ -25,9 +26,9 @@ def load_model(model_size):
 
 def video_stats(vid_capture):
     """
-    Определяем параметры видеофайла:
-    количество кадров и скорость воспроизведения (кадр/сек)
-    а также размеры кадра, возвращаем эти параметры в виде кортежа
+    Определяем параметры видео, которое передается в качестве аргумента:
+    количество кадров и скорость воспроизведения (fps), а также размеры кадра,
+    возвращаем эти параметры в виде кортежа
     """
 
     if vid_capture.isOpened() is False:
@@ -44,7 +45,7 @@ def video_stats(vid_capture):
 
 def detect(img):
     """
-    Функция обработки yolo8 для определения наличия на нём людей без каски.
+    Функция обнаружения в кадре людей без каски с помощью yolo8.
     Принимает в качестве аргумента изображение (кадр из видеоряда)
     Возвращает список, содержащий координаты ограничивающих рамок
     с изображением голов, на которых каска не выявлена
@@ -64,18 +65,83 @@ def detect(img):
     return no_hardhat_person, hardhat_person
 
 
+def video_processing(files, model_size, process_speed, show_vid, out_path):
+    """
+    Основная функция обработки видео. В качестве параметров получает:
+    список файлов, размер модели, скорость обработки, флаг для показа видео
+    с нарушениями в ходе обработки (True - показывать, False - нет),
+    путь для записи итогового видеофайла.
+    """
+    # Грузим модель
+    load_model(model_size)
+
+    for file in files:
+        vid_capture = cv2.VideoCapture(file)
+
+        # Выводим статистику по видеофайлу
+        frame_width, frame_height, frame_count, fps = video_stats(vid_capture)
+        frame_size = (frame_width, frame_height)
+
+        # Определяем имя для видеофайла-отчёта
+        path, filename = os.path.split(file)
+        out_file = "out_" + filename
+        output = cv2.VideoWriter(
+            out_path + "/" + out_file,
+            cv2.VideoWriter_fourcc(*"XVID"),
+            20, frame_size
+        )
+
+        # счётчик кадров
+        frame_cnt = 0
+
+        # счетчик записи
+        rec_cnt = 0
+
+        while vid_capture.isOpened():
+            ret, frame = vid_capture.read()
+
+            if ret:
+                frame_cnt += 1
+
+                # Если на видео будет обнаружен объект без каски,
+                # с этого момента начинается запись abv количества кадров
+                # в выходной видеофайл. Это сделано, чтобы в видео сохранялись
+                # не единичные картинки, а полноценный видеоряд
+                if rec_cnt <= 0:
+
+                    if (frame_cnt % process_speed) == 0:
+                        no_hardhat_person, hardhat_person = detect(frame)
+
+                        if no_hardhat_person:
+                            # Тут указываем, сколько кадров сохранить в файле
+                            # с моментa обнаружения нарушения
+                            rec_cnt = 60
+                else:
+                    # Выводим видео с нарушениями (если есть соответствующая
+                    # галочка в диалоговом окне)
+                    if show_vid:
+                        cv2.imshow("NoHardHat", frame)
+                    # Пишем видео в файл
+                    output.write(frame)
+                    # Уменьшаем счётчик
+                    rec_cnt -= 1
+
+                key = cv2.waitKey(1)
+
+                if (key == ord("q")) or key == 27:
+                    break
+            else:
+                break
+
+        # Освободить объект захвата видео
+        vid_capture.release()
+        cv2.destroyAllWindows()
+
+
 if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
-    vid_capture = cv2.VideoCapture('2323.mp4')
-
-    frame_width, frame_height, frame_count, fps = video_stats(vid_capture)
-
-    print(f"Размеры кадра: ширина {frame_width}, высота: {frame_height}")
-    print(f"Кол-во кадров: {frame_count}, fps: {fps}, длит-ть видео (сек.): {frame_count/fps}")
 
     load_model("keremberke/yolov8m-hard-hat-detection")
-
     img = cv2.imread("1212.jpeg")
     no_hardhat_person, hardhat_person = detect(img)
-    print(no_hardhat_person, hardhat_person)
     print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
     и {len(hardhat_person)} ответственных работников в касках")
