@@ -1,4 +1,4 @@
-pytorch
+torch
 streamlit==1.20.0
 ultralyticsplus==0.0.24 
 ultralytics==8.0.23
