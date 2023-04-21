@@ -1,6 +1,7 @@
 import streamlit as st
 from ultralyticsplus import YOLO, render_result
 
+
 st.set_page_config(
     layout="centered",
     page_title="Model configuration",
