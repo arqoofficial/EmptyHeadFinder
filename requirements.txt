@@ -1,5 +1,5 @@
-pandas==1.5.3
-numpy==1.24.2
+pytorch
 streamlit==1.20.0
 ultralyticsplus==0.0.24 
 ultralytics==8.0.23
+opencv-python==4.7.0.72
