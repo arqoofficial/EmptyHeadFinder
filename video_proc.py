@@ -141,7 +141,7 @@ def video_processing(files, model_size, process_speed, show_vid, out_path):
 if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
 
     load_model("keremberke/yolov8m-hard-hat-detection")
-    img = cv2.imread("1212.jpeg")
+    img = cv2.imread("images/stroiteli.jpg")
     no_hardhat_person, hardhat_person = detect(img)
     print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
     и {len(hardhat_person)} ответственных работников в касках")
