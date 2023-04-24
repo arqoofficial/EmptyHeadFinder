@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
 import os
-import video_proc
+import media_processing as mp
 
 
 def about():
@@ -66,7 +66,7 @@ def start():
         mb.showerror("Ошибка", "Выберите путь для записи результатов")
         return
 
-    video_proc.video_processing(files,
+    mp.video_processing(files,
                                 model_size.get(),
                                 process_speed.get(),
                                 show_vid.get(),
