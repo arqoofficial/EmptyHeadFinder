@@ -175,7 +175,10 @@ def video_processing(
         vid_capture = cv2.VideoCapture(file)
 
         # Выводим статистику по видеофайлу
-        frame_width, frame_height, frame_count, fps = video_stats(vid_capture)
+        frame_width, frame_height, frame_count, fps = video_stats(
+            vid_capture=vid_capture,
+            beatiful=False
+        )
         frame_size = (frame_width, frame_height)
 
         # Определяем имя для видеофайла-отчёта
@@ -183,7 +186,7 @@ def video_processing(
         out_file = f"out_{filename}"
         output = cv2.VideoWriter(
             filename=os.path.join(out_path, out_file),
-            fourcc=cv2.VideoWriter_fourcc(*"XVID"),
+            fourcc=cv2.VideoWriter_fourcc(*"H264"), # H264 # XVID
             frameSize=frame_size,
             fps=fps
         )
@@ -236,25 +239,27 @@ def video_processing(
         # Освободить объект захвата видео
         vid_capture.release()
         cv2.destroyAllWindows()
+        return os.path.join(out_path, out_file)
 
-
-if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
-
-    model = load_model(model_size="m")
-    img = cv2.imread("1212.jpeg")
-    no_hardhat_person, hardhat_person = detect(
-        image=img,
-        model=model
-    )
-    print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
- и {len(hardhat_person)} ответственных работников в касках")
 
 # if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
 
 #     model = load_model(model_size="m")
-#     video_processing(
-#         model=model,
-#         process_speed=4,
-#         files=["/Users/artemgolubev/Desktop/CODE/GIT/EmptyHeadFinder-1/2323.mp4"],
-#         show_vid=False,
+#     img = cv2.imread("images/nasialnika.jpg")
+#     no_hardhat_person, hardhat_person = detect(
+#         image=img,
+#         model=model
 #     )
+#     print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
+#  и {len(hardhat_person)} ответственных работников в касках")
+
+if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
+
+    model = load_model(model_size="m")
+    res = video_processing(
+        model=model,
+        process_speed=1,
+        files=["/Users/artemgolubev/Desktop/CODE/GIT/EmptyHeadFinder-1/out_2323.mp4"],
+        show_vid=False,
+    )
+    print(res)
