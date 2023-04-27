@@ -11,8 +11,9 @@ st.write("# Photo 📸")
 st.write("___")
 
 model = stc.set_model()
-image = stc.load_file()
-analyze = stc.analyze_image(
-    model=model,
-    image=image
-)
+image = stc.load_file(is_photo=True)
+if image:
+    analyze = stc.analyze_image(
+        model=model,
+        image=image
+    )

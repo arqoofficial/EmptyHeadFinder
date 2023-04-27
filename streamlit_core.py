@@ -62,58 +62,91 @@ def set_model():
     return model
 
 
-def load_file():
+def load_file(
+    is_photo: bool = True
+) -> None:
     helper = """
     Here you should paste correct path of the file you want to analyze
     """
-    file = st.text_input(
-        "Input your file path",
-        value="",
-        max_chars=None,
-        key=None,
-        type="default",
-        help=helper,
-        autocomplete=None,
-        on_change=None,
-        args=None,
-        kwargs=None,
-        placeholder=None,
-        disabled=False,
-        label_visibility="visible"
-    )
-    if file:
-        if os.path.isfile(file):
-            return file
-        else:
-            st.warning("Write correct path!")
-            file = None
-
-
-def out_path():
-    helper = """
-    Here you should paste correct path for folder of outfile
-    """
-    out_file = st.text_input(
-        "Input your outfile folder path",
-        value="",
-        max_chars=None,
-        key=None,
-        type="default",
-        help=helper,
-        autocomplete="./",
-        on_change=None,
-        args=None,
-        kwargs=None,
-        placeholder=None,
-        disabled=False,
-        label_visibility="visible"
-    )
-    if out_file:
-        if os.path.exists(out_file):
-            return out_file
-        else:
-            st.warning("Write correct path!")
-            out_file = None
+    
+    # file_name = os.path.split(file)[1]
+    
+    if is_photo:
+        file = st.text_input(
+            "Input your file path",
+            value="",
+            max_chars=None,
+            key=None,
+            type="default",
+            help=helper,
+            autocomplete=None,
+            on_change=None,
+            args=None,
+            kwargs=None,
+            placeholder=None,
+            disabled=False,
+            label_visibility="visible"
+        )
+        if file:
+            if os.path.isfile(file):
+                return file
+            else:
+                st.warning("Write correct path!")
+                file = None
+    else:
+        file, out_folder = None, None
+        file = st.text_input(
+            "Input your file path",
+            value="",
+            max_chars=None,
+            key=None,
+            type="default",
+            help=helper,
+            autocomplete=None,
+            on_change=None,
+            args=None,
+            kwargs=None,
+            placeholder=None,
+            disabled=False,
+            label_visibility="visible"
+        )
+        if file:
+            if os.path.isfile(file):
+                helper_video = """
+                Here you should paste correct path for folder of outfile
+                """
+                out_folder = st.text_input(
+                    "Input your outfile folder path",
+                    value="", # os.path.abspath("./videos/output"),
+                    max_chars=None,
+                    key=None,
+                    type="default",
+                    help=helper_video,
+                    autocomplete="",
+                    on_change=None,
+                    args=None,
+                    kwargs=None,
+                    placeholder=None,
+                    disabled=False,
+                    label_visibility="visible"
+                )
+                if out_folder:
+                    if os.path.exists(out_folder):
+                        # output_file_path = os.path.abspath(
+                        #     os.path.join(out_folder, f"out_{file_name}")
+                        # )
+                        return file, out_folder
+                    else:
+                        st.warning("Write correct path!")
+                        out_folder = None
+                        file = None
+                        return file, out_folder
+            else:
+                st.warning("Write correct path!")
+                file = None
+                # out_folder = None
+                return file, out_folder
+        return file, out_folder
 
 
 def analyze_image(
@@ -198,9 +231,10 @@ def analyze_video(
                     out_path=out_path,
                     show_vid=False
                 )
-                return output_path
+                return os.path.relpath(output_path)
             else:
                 st.warning("Input something above")
+                video = None
                 
 
 def show_video(

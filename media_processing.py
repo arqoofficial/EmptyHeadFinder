@@ -182,10 +182,11 @@ def video_processing(
         frame_size = (frame_width, frame_height)
 
         # Определяем имя для видеофайла-отчёта
-        filename = os.path.split(file)[1]
-        out_file = f"out_{filename}"
+        path, filename = os.path.split(file)
+        out_file_name = f"out_{filename}"
+        output_file_path = os.path.join(out_path, out_file_name)
         output = cv2.VideoWriter(
-            filename=os.path.join(out_path, out_file),
+            filename=output_file_path,
             fourcc=cv2.VideoWriter_fourcc(*"H264"), # H264 # XVID
             frameSize=frame_size,
             fps=fps
@@ -239,7 +240,7 @@ def video_processing(
         # Освободить объект захвата видео
         vid_capture.release()
         cv2.destroyAllWindows()
-        return os.path.join(out_path, out_file)
+        return output_file_path
 
 
 # if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
