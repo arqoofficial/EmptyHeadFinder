@@ -9,13 +9,13 @@ def test_load_model():
 
 
 def test_video_stats():
-    vid_capture = cv2.VideoCapture("2323.mp4")
+    vid_capture = cv2.VideoCapture("videos/2323.mp4")
 
     assert video_stats(vid_capture=vid_capture) == (1920, 1080, 3301, 25)
 
 
 def test_detect():
-    img = cv2.imread("1212.jpeg")
+    img = cv2.imread("images/stroiteli.jpg")
     no_hardhat_person, hardhat_person = detect(img)
 
     assert no_hardhat_person == ([[[44.0, 61.0, 119.0, 168.0]],

@@ -1,4 +1,4 @@
-from ultralyticsplus import YOLO
+from ultralyticsplus import YOLO, render_result
 import cv2
 import os
 
@@ -16,12 +16,12 @@ def load_model(
     фото или кадров видеоряда с её помощью.
 
     Args:
-        model_size (str, optional): 
+        * model_size (str, optional):
         Choose size of model from ["n", "s", "m"]. Defaults to "m".
-        conf (int, optional): NMS confidence threshold. Defaults to 25.
-        iou (int, optional): NMS IoU threshold. Defaults to 45.
-        agnostic_nms (bool, optional): NMS class-agnostic. Defaults to False.
-        max_det (int, optional): 
+        * conf (int, optional): NMS confidence threshold. Defaults to 25.
+        * iou (int, optional): NMS IoU threshold. Defaults to 45.
+        * agnostic_nms (bool, optional): NMS class-agnostic. Defaults to False.
+        * max_det (int, optional):
         Maximum number of detections per image. Defaults to 1000.
 
     Raises:
@@ -47,7 +47,7 @@ def load_model(
     if not with_status:
         return model
     else:
-        (model, "ok")
+        return (model, "Ok")
 
 
 def _beatiful_video_stats(
@@ -56,7 +56,7 @@ def _beatiful_video_stats(
     """This internal function makes video_stats beatiful
 
     Args:
-        video_stats (tuple, optional): tuple from video_stats(). 
+        * video_stats (tuple, optional): tuple from video_stats().
         Defaults to None.
 
     Returns:
@@ -70,13 +70,12 @@ def _beatiful_video_stats(
         minutes = minutes - hours * 60
     if minutes <= 9:
         minutes = f"0{minutes}"
-    
     if seconds <= 9:
         seconds = f"0{seconds}"
     result = f"""
-        resolution = {video_stats[0]}*{video_stats[1]}
-        time = {hours}:{minutes}:{seconds}
-        fps = {video_stats[3]}
+    resolution = {video_stats[0]}*{video_stats[1]}
+    time = {hours}:{minutes}:{seconds}
+    fps = {video_stats[3]}
     """
     return result
 
@@ -86,16 +85,17 @@ def video_stats(
     beatiful: bool = False
 ) -> tuple:
     """
-    Функция определяет параметры видео, которое передается в качестве аргумента:
+    Функция определяет параметры видео, которое передается
+    в качестве аргумента:
     количество кадров и скорость воспроизведения (fps), а также размеры кадра,
     возвращаем эти параметры в виде кортежа
 
     Args:
-        vid_capture (cv2.VideoCapture, optional): 
+        * vid_capture (cv2.VideoCapture, optional):
         object of cv2.VideoCapture class. Defaults to None.
 
     Returns:
-        tuple: contains frame_width, frame_height, frame_count, fps
+        tuple: (frame_width, frame_height, frame_count, fps)
     """
 
     if vid_capture.isOpened() is False:
@@ -118,8 +118,9 @@ def video_stats(
 
 def detect(
     image: any = None,
-    model: YOLO = None
-):
+    model: YOLO = None,
+    with_render: bool = False
+) -> tuple:
     """Функция обнаружения в кадре людей без каски с помощью yolo8.
     Принимает в качестве аргумента изображение (кадр из видеоряда)
     Возвращает список, содержащий координаты ограничивающих рамок
@@ -131,7 +132,7 @@ def detect(
 
     Returns:
         _type_: _description_
-    """    
+    """
 
     model = model
     results = model.predict(image)
@@ -145,8 +146,15 @@ def detect(
 
         elif int(box.cls) == 0:
             hardhat_person.append(box.xyxy.tolist())  # float(box.conf),
-
-    return no_hardhat_person, hardhat_person
+    if not with_render:
+        return no_hardhat_person, hardhat_person
+    else:
+        render = render_result(
+            model=model,
+            image=image,
+            result=results[0]
+        )
+        return render, (no_hardhat_person, hardhat_person)
 
 
 def video_processing(
@@ -155,19 +163,19 @@ def video_processing(
     files: list = None,
     show_vid: bool = False,
     out_path: str = "./",
-):
+) -> None:
     """Основная функция обработки видео. В качестве параметров получает:
-    список файлов, размер модели, скорость обработки, флаг для показа 
+    список файлов, размер модели, скорость обработки, флаг для показа
     видео с нарушениями в ходе обработки (True - показывать, False - нет),
     путь для записи итогового видеофайла.
 
     Args:
-        model (YOLO, optional): _description_. Defaults to None.
-        process_speed (int, optional): _description_. Defaults to 1.
-        files (list, optional): _description_. Defaults to None.
-        show_vid (bool, optional): _description_. Defaults to False.
-        out_path (str, optional): _description_. Defaults to "./".
-    """    
+        * model (YOLO, optional): _description_. Defaults to None.
+        * process_speed (int, optional): _description_. Defaults to 1.
+        * files (list, optional): _description_. Defaults to None.
+        * show_vid (bool, optional): _description_. Defaults to False.
+        * out_path (str, optional): _description_. Defaults to "./".
+    """
     # Грузим модель
     model = model
 
@@ -182,12 +190,12 @@ def video_processing(
         frame_size = (frame_width, frame_height)
 
         # Определяем имя для видеофайла-отчёта
-        path, filename = os.path.split(file)
+        filename = os.path.basename(file)
         out_file_name = f"out_{filename}"
         output_file_path = os.path.join(out_path, out_file_name)
         output = cv2.VideoWriter(
             filename=output_file_path,
-            fourcc=cv2.VideoWriter_fourcc(*"H264"), # H264 # XVID
+            fourcc=cv2.VideoWriter_fourcc(*"H264"),  # H264 # XVID
             frameSize=frame_size,
             fps=fps
         )
@@ -243,24 +251,24 @@ def video_processing(
         return output_file_path
 
 
-# if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
-
-#     model = load_model(model_size="m")
-#     img = cv2.imread("images/nasialnika.jpg")
-#     no_hardhat_person, hardhat_person = detect(
-#         image=img,
-#         model=model
-#     )
-#     print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
-#  и {len(hardhat_person)} ответственных работников в касках")
-
 if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
 
     model = load_model(model_size="m")
-    res = video_processing(
-        model=model,
-        process_speed=1,
-        files=["/Users/artemgolubev/Desktop/CODE/GIT/EmptyHeadFinder-1/out_2323.mp4"],
-        show_vid=False,
+    img = cv2.imread("images/nasialnika.jpg")
+    no_hardhat_person, hardhat_person = detect(
+        image=img,
+        model=model
     )
-    print(res)
+    print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
+ и {len(hardhat_person)} ответственных работников в касках")
+
+# if __name__ == "__main__":  # Для проверки работы цикла с видео
+
+#     model = load_model(model_size="m")
+#     res = video_processing(
+#         model=model,
+#         process_speed=1,
+#         files=["/Users/artemgolubev/Desktop/CODE/GIT/EmptyHeadFinder-1/out_2323.mp4"],
+#         show_vid=False,
+#     )
+#     print(res)

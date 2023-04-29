@@ -67,10 +67,10 @@ def start():
         return
 
     mp.video_processing(files,
-                                model_size.get(),
-                                process_speed.get(),
-                                show_vid.get(),
-                                out_path)
+                        model_size.get(),
+                        process_speed.get(),
+                        show_vid.get(),
+                        out_path)
 
     clear()
 
@@ -88,8 +88,8 @@ root.title("Зоркий глаз")
 # Изображение в левом верхнем углу
 img_file = tk.PhotoImage(file="image.png")
 tk.Button(root, image=img_file, command=about).grid(
-          row=0, column=0, columnspan=2, rowspan=8
-        )
+    row=0, column=0, columnspan=2, rowspan=8
+)
 
 # Селектор выбора используемой модели
 tk.Label(text="Размер модели:").grid(row=0, column=2, sticky=tk.N, padx=10)

@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 import media_processing as mp
-from ultralyticsplus import YOLO, render_result
+from ultralyticsplus import YOLO
 
 
 def set_model():
@@ -68,11 +68,8 @@ def load_file(
     helper = """
     Here you should paste correct path of the file you want to analyze
     """
-    
-    # file_name = os.path.split(file)[1]
-    
     if is_photo:
-        file = st.text_input(
+        input_file_path = st.text_input(
             "Input your file path",
             value="",
             max_chars=None,
@@ -87,15 +84,16 @@ def load_file(
             disabled=False,
             label_visibility="visible"
         )
-        if file:
-            if os.path.isfile(file):
-                return file
+        if input_file_path:
+            input_file_path = os.path.abspath(input_file_path)
+            if os.path.isfile(input_file_path):
+                return input_file_path
             else:
                 st.warning("Write correct path!")
-                file = None
+                input_file_path = None
     else:
-        file, out_folder = None, None
-        file = st.text_input(
+        input_file_path, output_folder_path = None, None
+        input_file_path = st.text_input(
             "Input your file path",
             value="",
             max_chars=None,
@@ -110,14 +108,15 @@ def load_file(
             disabled=False,
             label_visibility="visible"
         )
-        if file:
-            if os.path.isfile(file):
+        if input_file_path:
+            input_file_path = os.path.abspath(input_file_path)
+            if os.path.isfile(input_file_path):
                 helper_video = """
                 Here you should paste correct path for folder of outfile
                 """
-                out_folder = st.text_input(
+                output_folder_path = st.text_input(
                     "Input your outfile folder path",
-                    value="", # os.path.abspath("./videos/output"),
+                    value="",
                     max_chars=None,
                     key=None,
                     type="default",
@@ -130,23 +129,19 @@ def load_file(
                     disabled=False,
                     label_visibility="visible"
                 )
-                if out_folder:
-                    if os.path.exists(out_folder):
-                        # output_file_path = os.path.abspath(
-                        #     os.path.join(out_folder, f"out_{file_name}")
-                        # )
-                        return file, out_folder
+                if output_folder_path:
+                    output_folder_path = os.path.abspath(output_folder_path)
+                    if os.path.exists(output_folder_path):
+                        return input_file_path, output_folder_path
                     else:
                         st.warning("Write correct path!")
-                        out_folder = None
-                        file = None
-                        return file, out_folder
+                        input_file_path, output_folder_path = None, None
+                        return input_file_path, output_folder_path
             else:
                 st.warning("Write correct path!")
-                file = None
-                # out_folder = None
-                return file, out_folder
-        return file, out_folder
+                input_file_path, output_folder_path = None, None
+                return input_file_path, output_folder_path
+        return input_file_path, output_folder_path
 
 
 def analyze_image(
@@ -158,7 +153,7 @@ def analyze_image(
     else:
         analyze_button = st.button(
             "Analyze! 🎲",
-            key=None,
+            key=1,
             help=None,
             on_click=None,
             args=None,
@@ -170,13 +165,11 @@ def analyze_image(
 
         if analyze_button:
             if image:
-                results = model.predict(image)
-                render = render_result(
-                    model=model,
+                render, stats = mp.detect(
                     image=image,
-                    result=results[0]
+                    model=model,
+                    with_render=True
                 )
-
                 st.write("___")
                 st.write("## Analysed image ✅")
                 st.image(
@@ -188,6 +181,9 @@ def analyze_image(
                     channels="RGB",
                     output_format="auto"
                 )
+                st.markdown("### Statistics:")
+                st.markdown(f"Persons with hardhat: **{len(stats[1])}**")
+                st.markdown(f"Persons without hardhat: **{len(stats[0])}**")
             else:
                 st.warning("Input something above")
 
@@ -195,7 +191,7 @@ def analyze_image(
 def set_process_speed():
     process_speed = st.slider(
         'Select analysis speed',
-        1, 10, 5,
+        1, 10, 4,
         step=1
     )
     return process_speed
@@ -210,6 +206,7 @@ def analyze_video(
     if video is None:
         pass
     else:
+        # output_video_path = False
         analyze_button = st.button(
             "Analyze! 🎲",
             key=None,
@@ -221,23 +218,17 @@ def analyze_video(
             disabled=False,
             use_container_width=False
         )
-
         if analyze_button:
-            if video:
-                output_path = mp.video_processing(
+            with st.spinner(text="In progress..."):
+                output_video_path = mp.video_processing(
                     model=model,
                     process_speed=process_speed,
                     files=[video],
                     out_path=out_path,
                     show_vid=False
                 )
-                return os.path.relpath(output_path)
-            else:
-                st.warning("Input something above")
-                video = None
-                
-
-def show_video(
-    
-) -> None:
-    pass
+            if output_video_path:
+                st.success(f"Done! Out video is here:\n\n{output_video_path}")
+                show_video = open(output_video_path, "rb")
+                show_video_bytes = show_video.read()
+                st.video(show_video_bytes)
