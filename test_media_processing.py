@@ -16,7 +16,12 @@ def test_video_stats():
 
 def test_detect():
     img = cv2.imread("images/stroiteli.jpg")
-    no_hardhat_person, hardhat_person = detect(img)
+    no_hardhat_person, hardhat_person = detect(
+        image=img,
+        model=load_model(
+            model_size="m"
+        )
+    )
 
     assert no_hardhat_person == ([[[44.0, 61.0, 119.0, 168.0]],
                                  [[378.0, 46.0, 460.0, 166.0]]])
