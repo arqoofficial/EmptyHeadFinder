@@ -133,7 +133,6 @@ def detect(
     Returns:
         _type_: _description_
     """
-    
     results = model.predict(source=image)
 
     no_hardhat_person, hardhat_person = [], []
