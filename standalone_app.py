@@ -65,12 +65,16 @@ def start():
     if not out_path:
         mb.showerror("Ошибка", "Выберите путь для записи результатов")
         return
-
-    mp.video_processing(files,
-                        model_size.get(),
-                        process_speed.get(),
-                        show_vid.get(),
-                        out_path)
+    model = mp.load_model(
+        model_size=model_size.get()
+    )
+    mp.video_processing(
+        files=files,
+        model=model,
+        process_speed=process_speed.get(),
+        show_vid=show_vid.get(),
+        out_path=out_path
+    )
 
     clear()
 
@@ -86,7 +90,7 @@ root.geometry("500x350")
 root.title("Зоркий глаз")
 
 # Изображение в левом верхнем углу
-img_file = tk.PhotoImage(file="image.png")
+img_file = tk.PhotoImage(file="images/image.png")
 tk.Button(root, image=img_file, command=about).grid(
     row=0, column=0, columnspan=2, rowspan=8
 )
@@ -94,27 +98,23 @@ tk.Button(root, image=img_file, command=about).grid(
 # Селектор выбора используемой модели
 tk.Label(text="Размер модели:").grid(row=0, column=2, sticky=tk.N, padx=10)
 model_size = tk.StringVar()
-model_size.set("keremberke/yolov8m-hard-hat-detection")
+model_size.set("m")
 base = tk.Radiobutton(
-    text="Базовая", variable=model_size,
-    value="keremberke/yolov8n-hard-hat-detection"
+    text="Малая", variable=model_size,
+    value="n"
 )
 small = tk.Radiobutton(
-    text="Малая", variable=model_size,
-    value="keremberke/yolov8s-hard-hat-detection"
+    text="Средняя", variable=model_size,
+    value="s"
 )
 medium = tk.Radiobutton(
-    text="Средняя", variable=model_size,
-    value="keremberke/yolov8m-hard-hat-detection"
-)
-large = tk.Radiobutton(
     text="Большая", variable=model_size,
-    value="keremberke/yolov8l-hard-hat-detection"
+    value="m"
 )
+
 base.grid(row=1, column=2, sticky=tk.W, padx=10)
 small.grid(row=2, column=2, sticky=tk.W, padx=10)
 medium.grid(row=3, column=2, sticky=tk.W, padx=10)
-large.grid(row=4, column=2, sticky=tk.W, padx=10)
 
 # Селектор выбора типа вывода
 tk.Label(text="Обработка моделью:").grid(row=0, column=3, sticky=tk.N, padx=10)

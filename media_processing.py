@@ -133,9 +133,8 @@ def detect(
     Returns:
         _type_: _description_
     """
-
-    model = model
-    results = model.predict(image)
+    
+    results = model.predict(source=image)
 
     no_hardhat_person, hardhat_person = [], []
 
@@ -178,7 +177,7 @@ def video_processing(
     """
     # Грузим модель
     model = model
-
+    list_of_output_file_pathes = []
     for file in files:
         vid_capture = cv2.VideoCapture(file)
 
@@ -193,6 +192,7 @@ def video_processing(
         filename = os.path.basename(file)
         out_file_name = f"out_{filename}"
         output_file_path = os.path.join(out_path, out_file_name)
+        list_of_output_file_pathes.append(output_file_path)
         output = cv2.VideoWriter(
             filename=output_file_path,
             fourcc=cv2.VideoWriter_fourcc(*"H264"),  # H264 # XVID
@@ -248,7 +248,10 @@ def video_processing(
         # Освободить объект захвата видео
         vid_capture.release()
         cv2.destroyAllWindows()
-        return output_file_path
+    if len(list_of_output_file_pathes) == 1:
+        return list_of_output_file_pathes[0]
+    else:
+        return list_of_output_file_pathes
 
 
 if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
