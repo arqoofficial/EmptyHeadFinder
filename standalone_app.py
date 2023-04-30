@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
 import os
-import video_proc
+import media_processing as mp
 
 
 def about():
@@ -66,11 +66,11 @@ def start():
         mb.showerror("Ошибка", "Выберите путь для записи результатов")
         return
 
-    video_proc.video_processing(files,
-                                model_size.get(),
-                                process_speed.get(),
-                                show_vid.get(),
-                                out_path)
+    mp.video_processing(files,
+                        model_size.get(),
+                        process_speed.get(),
+                        show_vid.get(),
+                        out_path)
 
     clear()
 
@@ -88,8 +88,8 @@ root.title("Зоркий глаз")
 # Изображение в левом верхнем углу
 img_file = tk.PhotoImage(file="images/image.png")
 tk.Button(root, image=img_file, command=about).grid(
-          row=0, column=0, columnspan=2, rowspan=8
-        )
+    row=0, column=0, columnspan=2, rowspan=8
+)
 
 # Селектор выбора используемой модели
 tk.Label(text="Размер модели:").grid(row=0, column=2, sticky=tk.N, padx=10)
