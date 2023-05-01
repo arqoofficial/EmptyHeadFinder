@@ -64,7 +64,7 @@ def set_model():
     return model
 
 
-def load_file(
+def load_file_with_path(
     is_photo: bool = True
 ) -> None:
     helper = """
