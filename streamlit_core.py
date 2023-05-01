@@ -17,6 +17,8 @@ def set_model():
 
     # load model
     if option_selected:
+        st.write(option)
+
         @st.cache_resource()
         def load_model():
             return YOLO(
@@ -223,7 +225,7 @@ def analyze_video(
                 output_video_path = mp.video_processing(
                     model=model,
                     process_speed=process_speed,
-                    files=[video],
+                    video_file_path=video,
                     out_path=out_path,
                     show_vid=False
                 )

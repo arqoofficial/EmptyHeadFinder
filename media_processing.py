@@ -9,7 +9,7 @@ def load_model(
     iou: int = 45,
     agnostic_nms: bool = False,
     max_det: int = 1000,
-    with_status: bool = False
+    with_status: bool = False,
 ) -> YOLO:
     """
     Функция используется для загрузки модели yolo8 для последующей обработки
@@ -38,8 +38,8 @@ def load_model(
         return f"Choose from these options {sizes_list}"
 
     # Установка параметров модели
-    model.overrides["conf"] = conf/100  # NMS confidence threshold
-    model.overrides["iou"] = iou/100  # NMS IoU threshold
+    model.overrides["conf"] = conf / 100  # NMS confidence threshold
+    model.overrides["iou"] = iou / 100  # NMS IoU threshold
     model.overrides["agnostic_nms"] = agnostic_nms  # NMS class-agnostic
     # maximum number of detections per image
     model.overrides["max_det"] = max_det
@@ -50,9 +50,7 @@ def load_model(
         return (model, "Ok")
 
 
-def _beatiful_video_stats(
-    video_stats: tuple = None
-) -> str:
+def calc_time(video_stats: tuple) -> str:
     """This internal function makes video_stats beatiful
 
     Args:
@@ -81,8 +79,8 @@ def _beatiful_video_stats(
 
 
 def video_stats(
-    vid_capture: cv2.VideoCapture = None,
-    beatiful: bool = False
+                vid_capture: cv2.VideoCapture,
+                with_time: bool = False
 ) -> tuple:
     """
     Функция определяет параметры видео, которое передается
@@ -106,20 +104,19 @@ def video_stats(
         frame_height = int(vid_capture.get(4))
         fps = int(vid_capture.get(5))
         frame_count = int(vid_capture.get(7))
+
         result_tuple = (frame_width, frame_height, frame_count, fps)
-        if not beatiful:
-            return result_tuple
+
+        if with_time:
+            return (calc_time(video_stats=result_tuple), result_tuple)
         else:
-            return (
-                _beatiful_video_stats(video_stats=result_tuple),
-                result_tuple
-            )
+            return result_tuple
 
 
 def detect(
-    image: any = None,
-    model: YOLO = None,
-    with_render: bool = False
+           image: any,
+           model: YOLO,
+           with_render: bool = False
 ) -> tuple:
     """Функция обнаружения в кадре людей без каски с помощью yolo8.
     Принимает в качестве аргумента изображение (кадр из видеоряда)
@@ -129,38 +126,37 @@ def detect(
     Args:
         image (any, optional): _description_. Defaults to None.
         model (YOLO, optional): _description_. Defaults to None.
-
-    Returns:
-        _type_: _description_
     """
-    results = model.predict(source=image)
+    results = model.predict(image)
 
-    no_hardhat_person, hardhat_person = [], []
+    no_hardhat_person = []
+    hardhat_person = []
 
     # Перебираем тензоры в целях обнаружения нужных нам объектов
     for box in results[0].boxes:
         if int(box.cls) == 1:
-            no_hardhat_person.append(box.xyxy.tolist())  # float(box.conf),
+            no_hardhat_person.append(box.xyxy.tolist())
 
         elif int(box.cls) == 0:
-            hardhat_person.append(box.xyxy.tolist())  # float(box.conf),
-    if not with_render:
-        return no_hardhat_person, hardhat_person
-    else:
-        render = render_result(
-            model=model,
-            image=image,
-            result=results[0]
-        )
+            hardhat_person.append(box.xyxy.tolist())
+
+    return no_hardhat_person, hardhat_person
+
+    if with_render:
+        render = render_result(model=model, image=image, result=results[0])
+
         return render, (no_hardhat_person, hardhat_person)
+
+    else:
+        return no_hardhat_person, hardhat_person
 
 
 def video_processing(
-    model: YOLO = None,
+    video_file_path: str,
+    out_path: str,
+    model: YOLO,
     process_speed: int = 1,
-    files: list = None,
     show_vid: bool = False,
-    out_path: str = "./",
 ) -> None:
     """Основная функция обработки видео. В качестве параметров получает:
     список файлов, размер модели, скорость обработки, флаг для показа
@@ -170,99 +166,97 @@ def video_processing(
     Args:
         * model (YOLO, optional): _description_. Defaults to None.
         * process_speed (int, optional): _description_. Defaults to 1.
-        * files (list, optional): _description_. Defaults to None.
+        *
         * show_vid (bool, optional): _description_. Defaults to False.
         * out_path (str, optional): _description_. Defaults to "./".
     """
-    # Грузим модель
-    model = model
-    list_of_output_file_pathes = []
-    for file in files:
-        vid_capture = cv2.VideoCapture(file)
 
-        # Выводим статистику по видеофайлу
-        frame_width, frame_height, frame_count, fps = video_stats(
-            vid_capture=vid_capture,
-            beatiful=False
-        )
-        frame_size = (frame_width, frame_height)
+    vid_capture = cv2.VideoCapture(video_file_path)
 
-        # Определяем имя для видеофайла-отчёта
-        filename = os.path.basename(file)
-        out_file_name = f"out_{filename}"
-        output_file_path = os.path.join(out_path, out_file_name)
-        list_of_output_file_pathes.append(output_file_path)
-        output = cv2.VideoWriter(
-            filename=output_file_path,
-            fourcc=cv2.VideoWriter_fourcc(*"H264"),  # H264 # XVID
-            frameSize=frame_size,
-            fps=fps
-        )
+    # Выводим статистику по видеофайлу
+    frame_width, frame_height, frame_count, fps = video_stats(vid_capture)
+    frame_size = (frame_width, frame_height)
 
-        # счётчик кадров
-        frame_cnt = 0
+    # Определяем имя для видеофайла-отчёта
+    path, filename = path_file_split(video_file_path)
+    out_file = out_path + "/" + "out_" + filename
 
-        # счетчик записи
-        rec_cnt = 0
+    output = cv2.VideoWriter(out_file,
+                             cv2.VideoWriter_fourcc(*"XVID"),
+                             20,
+                             frame_size)
+    # счётчик кадров
+    frame_cnt = 0
+    # счетчик записи
+    rec_cnt = 0
 
-        while vid_capture.isOpened():
-            ret, frame = vid_capture.read()
+    while vid_capture.isOpened():
+        ret, frame = vid_capture.read()
 
-            if ret:
-                frame_cnt += 1
-
-                # Если на видео будет обнаружен объект без каски,
-                # с этого момента начинается запись abv количества кадров
-                # в выходной видеофайл. Это сделано, чтобы в видео сохранялись
-                # не единичные картинки, а полноценный видеоряд
-                if rec_cnt <= 0:
-
-                    if (frame_cnt % process_speed) == 0:
-                        no_hardhat_person, hardhat_person = detect(
-                            image=frame,
-                            model=model
-                        )
-
-                        if no_hardhat_person:
-                            # Тут указываем, сколько кадров сохранить в файле
-                            # с моментa обнаружения нарушения
-                            rec_cnt = 60
-                else:
-                    # Выводим видео с нарушениями (если есть соответствующая
-                    # галочка в диалоговом окне)
-                    if show_vid:
-                        cv2.imshow("NoHardHat", frame)
-                    # Пишем видео в файл
-                    output.write(frame)
-                    # Уменьшаем счётчик
-                    rec_cnt -= 1
-
-                key = cv2.waitKey(1)
-
-                if (key == ord("q")) or key == 27:
-                    break
+        if ret:
+            frame_cnt += 1
+            # Если на видео будет обнаружен объект без каски,
+            # с этого момента начинается запись abv количества кадров
+            # в выходной видеофайл. Это сделано, чтобы в видео сохранялись
+            # не единичные картинки, а полноценный видеоряд
+            if rec_cnt <= 0:
+                if (frame_cnt % process_speed) == 0:
+                    no_hardhat_person, hardhat_person = detect(frame, model)
+                    if no_hardhat_person:
+                        # Тут указываем, сколько кадров сохранить в файле
+                        # с моментa обнаружения нарушения
+                        rec_cnt = 60
             else:
-                break
+                # Выводим видео с нарушениями (если есть соответствующая
+                # галочка в диалоговом окне)
+                if show_vid:
+                    cv2.imshow("NoHardHat", frame)
+                # Пишем видео в файл
+                output.write(frame)
+                # Уменьшаем счётчик
+                rec_cnt -= 1
 
-        # Освободить объект захвата видео
-        vid_capture.release()
-        cv2.destroyAllWindows()
-    if len(list_of_output_file_pathes) == 1:
-        return list_of_output_file_pathes[0]
-    else:
-        return list_of_output_file_pathes
+            key = cv2.waitKey(1)
+
+            if (key == ord("q")) or key == 27:
+                break
+        else:
+            break
+
+    # Освободить объект захвата видео
+    vid_capture.release()
+    cv2.destroyAllWindows()
+
+    return out_file
+
+
+def path_file_split(full_path: str) -> tuple:
+    """
+    Функция разделяет путь и имя файла
+    принимает полный путь (с именем)
+    возвращает путь, имя
+    """
+    path, filename = os.path.split(full_path)
+
+    return path, filename
+
+
+def clear_tmp(dir: str) -> None:
+    """
+    Очищает папку tmp от временных файлов
+    """
+    for file in os.scandir(dir):
+        os.remove(file.path)
 
 
 if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
-
     model = load_model(model_size="m")
     img = cv2.imread("images/nasialnika.jpg")
-    no_hardhat_person, hardhat_person = detect(
-        image=img,
-        model=model
+    no_hardhat_person, hardhat_person = detect(image=img, model=model)
+    print(
+        f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
+ и {len(hardhat_person)} ответственных работников в касках"
     )
-    print(f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
- и {len(hardhat_person)} ответственных работников в касках")
 
 # if __name__ == "__main__":  # Для проверки работы цикла с видео
 

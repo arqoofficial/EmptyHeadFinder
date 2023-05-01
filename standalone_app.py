@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
-import os
 import media_processing as mp
 
 
@@ -36,7 +35,7 @@ def insert_files():
     global out_path
     clear()
     files = fd.askopenfilenames()
-    path, file = os.path.split(files[0])
+    path, file = mp.path_file_split(files[0])
     out_path = path
     filename.insert(0, files)
     pathname.insert(0, out_path)
@@ -65,16 +64,17 @@ def start():
     if not out_path:
         mb.showerror("Ошибка", "Выберите путь для записи результатов")
         return
-    model = mp.load_model(
-        model_size=model_size.get()
-    )
-    mp.video_processing(
-        files=files,
-        model=model,
-        process_speed=process_speed.get(),
-        show_vid=show_vid.get(),
-        out_path=out_path
-    )
+
+    model = mp.load_model(model_size=model_size.get())
+
+    for video_file in files:
+        mp.video_processing(
+            video_file,
+            out_path,
+            model,
+            process_speed=process_speed.get(),
+            show_vid=show_vid.get(),
+        )
 
     clear()
 
@@ -99,22 +99,14 @@ tk.Button(root, image=img_file, command=about).grid(
 tk.Label(text="Размер модели:").grid(row=0, column=2, sticky=tk.N, padx=10)
 model_size = tk.StringVar()
 model_size.set("m")
-base = tk.Radiobutton(
-    text="Малая", variable=model_size,
-    value="n"
-)
-small = tk.Radiobutton(
-    text="Средняя", variable=model_size,
-    value="s"
-)
-medium = tk.Radiobutton(
-    text="Большая", variable=model_size,
-    value="m"
-)
-
+base = tk.Radiobutton(text="Базовая", variable=model_size, value="n")
+small = tk.Radiobutton(text="Малая", variable=model_size, value="s")
+medium = tk.Radiobutton(text="Средняя", variable=model_size, value="m")
+large = tk.Radiobutton(text="Большая", variable=model_size, value="l")
 base.grid(row=1, column=2, sticky=tk.W, padx=10)
 small.grid(row=2, column=2, sticky=tk.W, padx=10)
 medium.grid(row=3, column=2, sticky=tk.W, padx=10)
+large.grid(row=4, column=2, sticky=tk.W, padx=10)
 
 # Селектор выбора типа вывода
 tk.Label(text="Обработка моделью:").grid(row=0, column=3, sticky=tk.N, padx=10)
@@ -164,8 +156,7 @@ show_vid_check = tk.Checkbutton(
 show_vid_check.grid(row=15, column=0, sticky=tk.W, padx=10, columnspan=4)
 
 # Главная красная кнопка
-start_button = tk.Button(text="Старт обработки",
-                         width=15, command=start)
+start_button = tk.Button(text="Старт обработки", width=15, command=start)
 start_button["bg"] = "#fa4400"
 start_button.grid(row=15, column=3, sticky=tk.S, padx=10)
 
