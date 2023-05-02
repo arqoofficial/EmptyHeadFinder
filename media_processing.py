@@ -12,20 +12,20 @@ def load_model(
     with_status: bool = False,
 ) -> YOLO:
     """
-    Функция используется для загрузки модели yolo8 для последующей обработки
-    фото или кадров видеоряда с её помощью.
+    Loads a YOLOv8 model for the further photo or video processing.
 
     Args:
         * model_size (str, optional):
-        Choose size of model from ["n", "s", "m"]. Defaults to "m".
+        size of model ("n", "s", "m"). Defaults to "m".
         * conf (int, optional): NMS confidence threshold. Defaults to 25.
         * iou (int, optional): NMS IoU threshold. Defaults to 45.
         * agnostic_nms (bool, optional): NMS class-agnostic. Defaults to False.
         * max_det (int, optional):
         Maximum number of detections per image. Defaults to 1000.
+        * with_status (bool, optional): whether to return load status. Defaults to False.
 
     Raises:
-        ValueError: if you choose wrong model size raises ValueError
+        ValueError: Wrong size of the model
 
     Returns:
         YOLO: Object of YOLO class - model for hardhat detection
@@ -35,14 +35,13 @@ def load_model(
     if model_size in sizes_list:
         model = YOLO(f"keremberke/yolov8{model_size}-hard-hat-detection")
     else:
-        return f"Choose from these options {sizes_list}"
+        return f"Choose the model size {sizes_list}"
 
-    # Установка параметров модели
+    # Setting model parameters
     model.overrides["conf"] = conf / 100  # NMS confidence threshold
     model.overrides["iou"] = iou / 100  # NMS IoU threshold
     model.overrides["agnostic_nms"] = agnostic_nms  # NMS class-agnostic
-    # maximum number of detections per image
-    model.overrides["max_det"] = max_det
+    model.overrides["max_det"] = max_det  # maximum number of detections per image
 
     if not with_status:
         return model
@@ -51,14 +50,14 @@ def load_model(
 
 
 def calc_time(video_stats: tuple) -> str:
-    """This internal function makes video_stats beatiful
+    """
+    Converts time from video_stats into HH:MM:SS format.
 
     Args:
-        * video_stats (tuple, optional): tuple from video_stats().
-        Defaults to None.
+        * video_stats (tuple): tuple from video_stats().
 
     Returns:
-        str: Beatiful description of video_stats
+        str: Time from video_stats in HH:MM:SS format.
     """
     raw_minutes = round((video_stats[2] / video_stats[3] / 60), 2)
     hours = int(raw_minutes // 60)
@@ -83,21 +82,19 @@ def video_stats(
                 with_time: bool = False
 ) -> tuple:
     """
-    Функция определяет параметры видео, которое передается
-    в качестве аргумента:
-    количество кадров и скорость воспроизведения (fps), а также размеры кадра,
-    возвращаем эти параметры в виде кортежа
+    Gets video parameters (fps, number of frames and frame size)
+    and returns them as a tuple.
 
     Args:
-        * vid_capture (cv2.VideoCapture, optional):
-        object of cv2.VideoCapture class. Defaults to None.
+        * vid_capture (cv2.VideoCapture): object of cv2.VideoCapture class.
+        * with_time (bool, optional): whether to return time codes. Defaults to False.
 
     Returns:
         tuple: (frame_width, frame_height, frame_count, fps)
     """
 
     if vid_capture.isOpened() is False:
-        return "Ошибка открытия видеофайла"
+        return "Error opening video file."
 
     else:
         frame_width = int(vid_capture.get(3))
@@ -118,21 +115,24 @@ def detect(
            model: YOLO,
            with_render: bool = False
 ) -> tuple:
-    """Функция обнаружения в кадре людей без каски с помощью yolo8.
-    Принимает в качестве аргумента изображение (кадр из видеоряда)
-    Возвращает список, содержащий координаты ограничивающих рамок
-    с изображением голов, на которых каска не выявлена
+    """
+    Using YOLOv8 model, detects people without a hard hat in the photo.
+    Returns a list with coordinates of boxes with heads not wearing a hard hat.
 
     Args:
-        image (any, optional): _description_. Defaults to None.
-        model (YOLO, optional): _description_. Defaults to None.
+        * image (any): image to process. Defaults to None.
+        * model (YOLO): model to use. Defaults to None.
+        * with_render (bool, optional): whether to render video. Defaults to False.
+
+    Returns:
+        None
     """
     results = model.predict(image)
 
     no_hardhat_person = []
     hardhat_person = []
 
-    # Перебираем тензоры в целях обнаружения нужных нам объектов
+    # Iterations over tensors in order to locate the necessary objects
     for box in results[0].boxes:
         if int(box.cls) == 1:
             no_hardhat_person.append(box.xyxy.tolist())
@@ -152,32 +152,35 @@ def detect(
 
 
 def video_processing(
-    video_file_path: str,
-    out_path: str,
     model: YOLO,
+    video_file_path: str,
+    out_path: str = './',
     process_speed: int = 1,
     show_vid: bool = False,
 ) -> None:
-    """Основная функция обработки видео. В качестве параметров получает:
-    список файлов, размер модели, скорость обработки, флаг для показа
-    видео с нарушениями в ходе обработки (True - показывать, False - нет),
-    путь для записи итогового видеофайла.
+    """
+    Main function of video precessing.
+    Gets a file list, model size, fps, path to output folder,
+    and a flag whether to show the video report with results.
 
     Args:
-        * model (YOLO, optional): _description_. Defaults to None.
-        * process_speed (int, optional): _description_. Defaults to 1.
-        *
-        * show_vid (bool, optional): _description_. Defaults to False.
-        * out_path (str, optional): _description_. Defaults to "./".
+        * model (YOLO): model to use.
+        * video_file_path (str): path to the video.
+        * out_path (str): path to the output folder. Defaults to "./".
+        * process_speed (int, optional): process speed. Defaults to 1.
+        * show_vid (bool, optional): whether to show video with violators. Defaults to False.
+
+    Returns:
+        Processed video report to the output folder.
     """
 
     vid_capture = cv2.VideoCapture(video_file_path)
 
-    # Выводим статистику по видеофайлу
+    # Video stats
     frame_width, frame_height, frame_count, fps = video_stats(vid_capture)
     frame_size = (frame_width, frame_height)
 
-    # Определяем имя для видеофайла-отчёта
+    # Name for the video report
     path, filename = path_file_split(video_file_path)
     out_file = out_path + "/" + "out_" + filename
 
@@ -185,9 +188,9 @@ def video_processing(
                              cv2.VideoWriter_fourcc(*"XVID"),
                              20,
                              frame_size)
-    # счётчик кадров
+    # Frames counter
     frame_cnt = 0
-    # счетчик записи
+    # Recordings counter
     rec_cnt = 0
 
     while vid_capture.isOpened():
@@ -195,25 +198,20 @@ def video_processing(
 
         if ret:
             frame_cnt += 1
-            # Если на видео будет обнаружен объект без каски,
-            # с этого момента начинается запись abv количества кадров
-            # в выходной видеофайл. Это сделано, чтобы в видео сохранялись
-            # не единичные картинки, а полноценный видеоряд
+            # If a person without a hard hat is detected, abv frames start recording to the output file
             if rec_cnt <= 0:
                 if (frame_cnt % process_speed) == 0:
                     no_hardhat_person, hardhat_person = detect(frame, model)
                     if no_hardhat_person:
-                        # Тут указываем, сколько кадров сохранить в файле
-                        # с моментa обнаружения нарушения
+                        # How many frames to save after detecting the violation
                         rec_cnt = 60
             else:
-                # Выводим видео с нарушениями (если есть соответствующая
-                # галочка в диалоговом окне)
+                # Show the video with violations
                 if show_vid:
                     cv2.imshow("NoHardHat", frame)
-                # Пишем видео в файл
+                # Write the video into the file
                 output.write(frame)
-                # Уменьшаем счётчик
+                # Reduce the counter
                 rec_cnt -= 1
 
             key = cv2.waitKey(1)
@@ -232,9 +230,7 @@ def video_processing(
 
 def path_file_split(full_path: str) -> tuple:
     """
-    Функция разделяет путь и имя файла
-    принимает полный путь (с именем)
-    возвращает путь, имя
+    Splits the full file name into path and file name.
     """
     path, filename = os.path.split(full_path)
 
@@ -243,22 +239,22 @@ def path_file_split(full_path: str) -> tuple:
 
 def clear_tmp(dir: str) -> None:
     """
-    Очищает папку tmp от временных файлов
+    Clears temporary files in tmp.
     """
     for file in os.scandir(dir):
         os.remove(file.path)
 
 
-if __name__ == "__main__":  # Тесты при запуске в качестве основного скрипта
+if __name__ == "__main__":  # Run tests if started as the main script
     model = load_model(model_size="m")
     img = cv2.imread("images/nasialnika.jpg")
     no_hardhat_person, hardhat_person = detect(image=img, model=model)
     print(
-        f"На фото изображено {len(no_hardhat_person)} балбесов без касок,\
- и {len(hardhat_person)} ответственных работников в касках"
+        f"There are {len(no_hardhat_person)} dummies without a hard hat,\
+ and {len(hardhat_person)} responsible workers wearing a hard hat in the photo."
     )
 
-# if __name__ == "__main__":  # Для проверки работы цикла с видео
+# if __name__ == "__main__":  # To check the cycle with video
 
 #     model = load_model(model_size="m")
 #     res = video_processing(

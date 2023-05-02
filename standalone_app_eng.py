@@ -6,10 +6,10 @@ import media_processing as mp
 
 def about() -> str:
     """
-    Displaying an information window about the application.
+    Displays an information window about the application.
     Returns an information string-constant ABOUT
     """
-    ABOUT = "УрФУ + Skillfactory forever!"
+    ABOUT = "UrFU + Skillfactory forever!"
     mb.showinfo("About program", ABOUT)
 
     return ABOUT
@@ -17,8 +17,8 @@ def about() -> str:
 
 def clear() -> None:
     """
-    Cleaning up file input forms and result entry paths.
-    It does not accept or return any parameters.
+    Cleans up file input forms and result entry paths.
+    Does not accept or return any parameters.
     """
     global files
     global out_path
@@ -30,8 +30,8 @@ def clear() -> None:
 
 def insert_files() -> None:
     """
-    Calling the file selection dialog box.
-    It does not accept or return any parameters.
+    Calls the file selection dialog box.
+    Does not accept or return any parameters.
     The selected files (path, name) are written to a global variable.
     """
     global files
@@ -46,8 +46,8 @@ def insert_files() -> None:
 
 def insert_path() -> None:
     """
-    Calling the dialog box for choosing the path to write the results.
-    It does not accept or return any parameters.
+    Calls the dialog box for choosing the path to write the results.
+    Does not accept or return any parameters.
     The selected path is written to the global variable.
     """
     global out_path
@@ -58,9 +58,9 @@ def insert_path() -> None:
 
 def start() -> list:
     """
-    Processing of selected files by YOLO8 model.
-    It does not accept any parameters.
-    Returns a list of created video report files or an error message.
+    Processes selected files by YOLO8 model.
+    Does not accept any parameters.
+    Returns a list of video reports or an error message.
     """
     if not files:
         mb.showerror("Error", "Select files to analyze")
@@ -144,12 +144,12 @@ tk.Radiobutton(text="every 2-nd",
                                                      column=3,
                                                      sticky=tk.W,
                                                      padx=10)
-tk.Radiobutton(text="every 4-nd",
+tk.Radiobutton(text="every 4-th",
                variable=process_speed, value=4).grid(row=3,
                                                      column=3,
                                                      sticky=tk.W,
                                                      padx=10)
-tk.Radiobutton(text="every 8-nd",
+tk.Radiobutton(text="every 8-th",
                variable=process_speed, value=8).grid(row=4,
                                                      column=3,
                                                      sticky=tk.W,
@@ -205,7 +205,7 @@ tk.Label(text="").grid(row=14,
 show_vid = tk.BooleanVar()
 show_vid.set("False")
 
-tk.Checkbutton(root, text="Show video violations", variable=show_vid,
+tk.Checkbutton(root, text="Show violations", variable=show_vid,
                onvalue="True", offvalue="False",).grid(row=15,
                                                        column=0,
                                                        sticky=tk.W,

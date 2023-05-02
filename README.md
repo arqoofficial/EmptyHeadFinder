@@ -1,22 +1,25 @@
-# EmptyHeadFinder
+# EmptyHeadFinder :construction_worker:
 
 [![Tests](https://github.com/YaRoLit/EmptyHeadFinder/actions/workflows/python-app.yml/badge.svg)](https://github.com/YaRoLit/EmptyHeadFinder/actions/workflows/python-app.yml)
 
-Участники проекта:
 
-- Анисимова Татьяна (t-linguist)
-- Голубев Артём (arqoofficial)
-- Литаврин Ярослав (YaRoLit)
-- Охотников Павел (PavelOkh)
+## App Description
 
-Используемые модели:
+**EmptyHeadFinder** is designed to detect people who wear a hard hat and those who do not.
 
-https://huggingface.co/keremberke/yolov8n-hard-hat-detection
+The application uses the following fine-tuned YOLOv8 models:
+1. [YOLOv8n](https://huggingface.co/keremberke/yolov8n-hard-hat-detection)
+2. [YOLOv8s](https://huggingface.co/keremberke/yolov8s-hard-hat-detection)
+3. [YOLOv8m](https://huggingface.co/keremberke/yolov8m-hard-hat-detection)
 
-https://huggingface.co/keremberke/yolov8s-hard-hat-detection
 
-https://huggingface.co/keremberke/yolov8m-hard-hat-detection
-
-Пример работы модели на картинке:
-
+## Model in Use
 <img src = 'https://github.com/YaRoLit/EmptyHeadFinder/blob/main/images/stroiteli_analysed.jpg' alt = 'analysed image' align='left'/>
+
+
+## Authors:
+
+- Artem Golubev ([arqoofficial](https://github.com/arqoofficial))
+- Pavel Okhotnikov ([PavelOkh](https://github.com/pavelokh))
+- Tatiana Anisimova ([t-linguist](https://github.com/t-linguist))
+- Yaroslav Litavrin ([YaRoLit](https://github.com/yarolit))

@@ -29,6 +29,7 @@ st.markdown(
     https://huggingface.co/keremberke/yolov8m-hard-hat-detection
 
     ## Пример работы модели на картинке:
+    
 """
 )
 stroiteli_image = Image.open("./images/stroiteli_analysed.jpg")
