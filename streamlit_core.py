@@ -64,7 +64,7 @@ def set_model():
     return model
 
 
-def load_file(
+def load_file_with_path(
     is_photo: bool = True
 ) -> None:
     helper = """
@@ -153,41 +153,28 @@ def analyze_image(
     if image is None:
         pass
     else:
-        analyze_button = st.button(
-            "Analyze! 🎲",
-            key=1,
-            help=None,
-            on_click=None,
-            args=None,
-            kwargs=None,
-            type="secondary",
-            disabled=False,
-            use_container_width=False
-        )
-
-        if analyze_button:
-            if image:
-                render, stats = mp.detect(
-                    image=image,
-                    model=model,
-                    with_render=True
-                )
-                st.write("___")
-                st.write("## Analysed image ✅")
-                st.image(
-                    render,
-                    caption=None,
-                    width=None,
-                    use_column_width=None,
-                    clamp=False,
-                    channels="RGB",
-                    output_format="auto"
-                )
-                st.markdown("### Statistics:")
-                st.markdown(f"Persons with hardhat: **{len(stats[1])}**")
-                st.markdown(f"Persons without hardhat: **{len(stats[0])}**")
-            else:
-                st.warning("Input something above")
+        if image:
+            render, stats = mp.detect(
+                image=image,
+                model=model,
+                with_render=True
+            )
+            st.write("___")
+            st.write("## Analysed image ✅")
+            st.image(
+                render,
+                caption=None,
+                width=None,
+                use_column_width=None,
+                clamp=False,
+                channels="RGB",
+                output_format="auto"
+            )
+            st.markdown("### Statistics:")
+            st.markdown(f"Persons with hardhat: **{len(stats[1])}**")
+            st.markdown(f"Persons without hardhat: **{len(stats[0])}**")
+        else:
+            st.warning("Input something above")
 
 
 def set_process_speed():

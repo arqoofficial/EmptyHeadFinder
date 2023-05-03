@@ -140,13 +140,9 @@ def detect(
         elif int(box.cls) == 0:
             hardhat_person.append(box.xyxy.tolist())
 
-    return no_hardhat_person, hardhat_person
-
     if with_render:
         render = render_result(model=model, image=image, result=results[0])
-
         return render, (no_hardhat_person, hardhat_person)
-
     else:
         return no_hardhat_person, hardhat_person
 
