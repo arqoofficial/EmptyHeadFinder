@@ -28,7 +28,7 @@ video_files = st.file_uploader(
     "Upload your video file(s)",
     accept_multiple_files=True,
     type=supported_formats,
-    help=supported_formats_str
+    help=help_video
 )
 temp_folder_path = os.path.relpath("./videos/tmp")
 start_button = st.button("Analyze 🎲")
