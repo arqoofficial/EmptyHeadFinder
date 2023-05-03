@@ -75,11 +75,15 @@ def start() -> list:
     report_videofiles = []
 
     for video_file in files:
-        report_videofiles.append(mp.video_processing(video_file,
-                                                     out_path,
-                                                     model,
-                                                     process_speed.get(),
-                                                     show_vid.get()))
+        report_videofiles.append(
+            mp.video_processing(
+                model,
+                video_file,
+                out_path,
+                process_speed.get(),
+                show_vid.get()
+            )
+        )
     clear()
 
     return report_videofiles
@@ -206,7 +210,7 @@ show_vid = tk.BooleanVar()
 show_vid.set("False")
 
 tk.Checkbutton(root, text="Show violations", variable=show_vid,
-               onvalue="True", offvalue="False",).grid(row=15,
+               onvalue="True", offvalue="False").grid(row=15,
                                                        column=0,
                                                        sticky=tk.W,
                                                        padx=10,

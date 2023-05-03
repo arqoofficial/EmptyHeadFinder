@@ -38,10 +38,12 @@ if start_button:
                 with open(f"./videos/tmp/{video_file.name}", "wb") as temp_file:
                     temp_file.write(video_file.read())
 
-                out_file = mp.video_processing(f"./videos/tmp/{video_file.name}",
-                                               out_path="./videos/tmp",
-                                               model=model,
-                                               process_speed=process_speed)
+                out_file = mp.video_processing(
+                    model,
+                    f"./videos/tmp/{video_file.name}",
+                    out_path="./videos/tmp",
+                    process_speed=process_speed
+                )
 
                 outfiles_list.append(out_file)
 

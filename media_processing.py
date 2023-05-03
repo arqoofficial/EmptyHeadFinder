@@ -78,8 +78,8 @@ def calc_time(video_stats: tuple) -> str:
 
 
 def video_stats(
-                vid_capture: cv2.VideoCapture,
-                with_time: bool = False
+    vid_capture: cv2.VideoCapture,
+    with_time: bool = False
 ) -> tuple:
     """
     Gets video parameters (fps, number of frames and frame size)
@@ -111,9 +111,9 @@ def video_stats(
 
 
 def detect(
-           image: any,
-           model: YOLO,
-           with_render: bool = False
+    image: any,
+    model: YOLO,
+    with_render: bool = False
 ) -> tuple:
     """
     Using YOLOv8 model, detects people without a hard hat in the photo.
@@ -139,7 +139,8 @@ def detect(
 
         elif int(box.cls) == 0:
             hardhat_person.append(box.xyxy.tolist())
-
+    
+    # return no_hardhat_person, hardhat_person
     if with_render:
         render = render_result(model=model, image=image, result=results[0])
         return render, (no_hardhat_person, hardhat_person)
@@ -169,7 +170,7 @@ def video_processing(
     Returns:
         Processed video report to the output folder.
     """
-
+    video_file_path = os.path.relpath(video_file_path)
     vid_capture = cv2.VideoCapture(video_file_path)
 
     # Video stats
@@ -178,7 +179,8 @@ def video_processing(
 
     # Name for the video report
     path, filename = path_file_split(video_file_path)
-    out_file = out_path + "/" + "out_" + filename
+    out_file = os.path.join(out_path, f"out_{filename}")
+    # out_file = out_path + "/" + "out_" + filename
 
     output = cv2.VideoWriter(out_file,
                              cv2.VideoWriter_fourcc(*"XVID"),
@@ -241,22 +243,22 @@ def clear_tmp(dir: str) -> None:
         os.remove(file.path)
 
 
-if __name__ == "__main__":  # Run tests if started as the main script
-    model = load_model(model_size="m")
-    img = cv2.imread("images/nasialnika.jpg")
-    no_hardhat_person, hardhat_person = detect(image=img, model=model)
-    print(
-        f"There are {len(no_hardhat_person)} dummies without a hard hat,\
- and {len(hardhat_person)} responsible workers wearing a hard hat in the photo."
-    )
-
-# if __name__ == "__main__":  # To check the cycle with video
-
+# if __name__ == "__main__":  # Run tests if started as the main script
 #     model = load_model(model_size="m")
-#     res = video_processing(
-#         model=model,
-#         process_speed=1,
-#         files=["/Users/artemgolubev/Desktop/CODE/GIT/EmptyHeadFinder-1/out_2323.mp4"],
-#         show_vid=False,
+#     img = cv2.imread("images/nasialnika.jpg")
+#     no_hardhat_person, hardhat_person = detect(image=img, model=model)
+#     print(
+#         f"There are {len(no_hardhat_person)} dummies without a hard hat,\
+#  and {len(hardhat_person)} responsible workers wearing a hard hat in the photo."
 #     )
-#     print(res)
+
+if __name__ == "__main__":  # To check the cycle with video
+
+    model = load_model(model_size="m")
+    res = video_processing(
+        model=model,
+        process_speed=8,
+        video_file_path="./videos/Serbian.mp4",
+        show_vid=False,
+    )
+    print(res)

@@ -76,11 +76,15 @@ def start() -> list:
     report_videofiles = []
 
     for video_file in files:
-        report_videofiles.append(mp.video_processing(video_file,
-                                                     out_path,
-                                                     model,
-                                                     process_speed.get(),
-                                                     show_vid.get()))
+        report_videofiles.append(
+            mp.video_processing(
+                model,
+                video_file,
+                out_path,
+                process_speed.get(),
+                show_vid.get()
+            )
+        )
     clear()
 
     return report_videofiles
