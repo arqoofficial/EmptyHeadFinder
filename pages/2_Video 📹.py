@@ -42,7 +42,8 @@ if start_button:
         with st.spinner(text="In progress..."):
             for video_file in video_files:
                 video_file_path = os.path.join(
-                    temp_folder_path, video_file.name)
+                    temp_folder_path, video_file.name
+                )
                 with open(video_file_path, "wb") as temp_file:
                     temp_file.write(video_file.read())
 
