@@ -7,7 +7,7 @@ st.set_page_config(
     layout="centered",
     page_title="Photo",
     page_icon="📸"
-)  # Полнооконное представление приложения
+)
 
 st.write("# Photo 📸")
 st.write("___")
@@ -22,14 +22,20 @@ images = st.file_uploader(
     type=supported_formats,
     help=help_image
 )
-images_tmp_folder_path = os.path.relpath("./images/tmp/")
+
+tmp_folder_path = os.path.relpath("./images/tmp/")
+if os.path.exists(tmp_folder_path):
+    pass
+else:
+    os.mkdir(tmp_folder_path)
+
 analyze_button = st.button("Analyze! 🎲")
 if analyze_button:
-    mp.clear_tmp(images_tmp_folder_path)
+    mp.clear_tmp(tmp_folder_path)
     if images:
         for image in images:
             with st.spinner(text="In progress..."):
-                image_path = os.path.join(images_tmp_folder_path, image.name)
+                image_path = os.path.join(tmp_folder_path, image.name)
                 with open(image_path, "wb") as temp_file:
                     temp_file.write(image.read())
                 stc.analyze_image(
@@ -38,4 +44,4 @@ if analyze_button:
                 )
     else:
         st.warning("Upload some images!")
-mp.clear_tmp(images_tmp_folder_path)
+mp.clear_tmp(tmp_folder_path)

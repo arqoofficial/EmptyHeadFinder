@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered",
     page_title="Video",
     page_icon="📹"
-)  # Полнооконное представление приложения
+)
 
 
 st.write("# Video 📹")
@@ -30,7 +30,14 @@ video_files = st.file_uploader(
     type=supported_formats,
     help=help_video
 )
+
 temp_folder_path = os.path.relpath("./videos/tmp")
+if os.path.exists(temp_folder_path):
+    pass
+else:
+    os.mkdir(temp_folder_path)
+
+
 start_button = st.button("Analyze 🎲")
 outfiles_list = []
 
@@ -56,8 +63,11 @@ if start_button:
 
                 outfiles_list.append(out_file)
 
-                # создаем архив видеоотчётов для выгрузки одним файлом
-                zip_file_path = os.path.relpath("./videos/tmp/out_videos.zip")
+                # Compile an archive of video reports
+                zip_file_path = os.path.join(
+                    temp_folder_path,
+                    "out_videos.zip"
+                )
                 with zipfile.ZipFile(
                     zip_file_path,
                     mode="a",
