@@ -1,9 +1,9 @@
+import os
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
-from ultralyticsplus import YOLO
-import cv2
-import os
+
+import proc as prc
 
 
 def about() -> str:
@@ -15,7 +15,7 @@ Yaroslav Litavrin
 Pavel Okhotnikov
 Artem Golubev
 Tatiana Anisimova
-            
+
 Ural Federal University, 2023"""
 
     mb.showinfo("About program", ABOUT)
@@ -42,11 +42,9 @@ def insert_files() -> None:
     global out_path
     clear()
     files = fd.askopenfilenames()
-    path, file = os.path.split(files[0])
-    out_path = path
+    out_path = os.path.dirname(files[0])
     filename.insert(0, files)
     pathname.insert(0, out_path)
-
 
 
 def insert_path() -> None:
@@ -59,140 +57,55 @@ def insert_path() -> None:
     pathname.insert(0, out_path)
 
 
-def start() -> None:
+def start() -> str:
     """ Processes selected files by YOLO8 model.
     """
     if not files:
         mb.showerror("Error", "Select files to analyze")
-        return
+        return "No video files selected"
 
     if not out_path:
         mb.showerror("Error", "Choose a path to write results")
-        return
+        return "No path for results entered"
 
     try:
-        model = load_model(model_size=model_size.get())
-    except:
-        mb.showerror("Error", "Error loading model")
+        model = prc.load_model(model_size=model_size.get())
+    except Exception as error_code:
+        mb.showerror("Error", "Error loading model.")
+        return error_code
 
     for video_file in files:
         try:
-            vid_capture = cv2.VideoCapture(video_file)
-        except:
+            vid_capture = prc.video_capture(video_file)
+        except Exception as error_code:
             mb.showerror("Error", f"Error opening {video_file} video file.")
+            return error_code
 
         try:
-            frame_size = get_video_stats(vid_capture)[0]
-        except:
-            mb.showerror("Error", f"Error getting {video_file} video statistic.")
+            video_param = prc.get_video_stats(vid_capture)
+        except Exception as error_code:
+            mb.showerror("Error", f"Error getting {video_file} video stats.")
+            return error_code
 
         try:
-            path, filename = os.path.split(video_file)
+            filename = os.path.split(video_file)[1]
 
-            video_report = create_videoreport(out_path,
-                                              filename,
-                                              frame_size)
-        except:
+            video_report = prc.create_videoreport(out_path,
+                                                  filename,
+                                                  video_param)
+        except Exception as error_code:
             mb.showerror("Error", "Error creating videoreport file")
+            print(error_code)
+            return error_code
 
-        video_processing(vid_capture,
-                         video_report,
-                         model,
-                         process_speed.get(),
-                         show_vid.get())
+        prc.video_processing(vid_capture,
+                             video_report,
+                             model,
+                             process_speed.get(),
+                             show_vid.get())
     clear()
 
-    return
-
-
-def load_model(model_size: str) -> YOLO:
-    """ Loads a YOLOv8 model for the further photo or video processing.
-    """
-    model = YOLO(model_size)
-
-    model.overrides['conf'] = 0.3
-    model.overrides['iou'] = 0.45
-    model.overrides['agnostic_nms'] = False
-    model.overrides['max_det'] = 1
-
-    return model
-
-
-def get_video_stats(vid_capture: cv2.VideoCapture) -> tuple:
-    """ Getting the statistic of video:
-    """
-    frame_width = int(vid_capture.get(3))
-    frame_height = int(vid_capture.get(4))
-    fps = int(vid_capture.get(5))
-    frame_count = int(vid_capture.get(7))
-
-    frame_size = (frame_width, frame_height)
-    video_time = frame_count / fps
-
-    return frame_size, video_time
-
-
-def create_videoreport(out_path: str,
-                       filename: str,
-                       frame_size: tuple) -> cv2.VideoWriter:
-    """ Create video report file:
-    """
-    report_videofile = out_path + "/" + "out_" + filename
-
-    out_video = cv2.VideoWriter(report_videofile,
-                                cv2.VideoWriter_fourcc(*"XVID"),
-                                20,
-                                frame_size)
-    return out_video
-
-
-def video_processing(vid_capture: cv2.VideoCapture,
-                     video_report: cv2.VideoWriter,
-                     model: YOLO,
-                     process_speed: int=1,
-                     show_vid: bool=False) -> None:
-    """ Main function of video processing.
-    """
-    frames_cnt = 0
-    rec_cnt = 0
-
-    while vid_capture.isOpened():
-        ret, frame = vid_capture.read()
-
-        if ret:
-            frames_cnt += 1
-
-            if rec_cnt:
-                video_report.write(frame)
-                rec_cnt -= 1
-                continue
-
-            if frames_cnt % process_speed:
-                continue
-
-            if detect(frame, model):
-                rec_cnt = 30
-
-                if show_vid:
-                    cv2.imshow("NoHardHat", frame)
-                    cv2.waitKey(1)
-        else:
-            break
-
-    vid_capture.release()
-    cv2.destroyAllWindows()
-
-
-def detect(image: any, model: YOLO) -> bool:
-    """
-    Using YOLOv8 model, detects people without a hard hat in the photo.
-    """
-    results = model.predict(image)
-
-    # Iterations over tensors in order to locate the necessary objects
-    for box in results[0].boxes:
-        if int(box.cls) == 1:
-            return True
+    return "Ok"
 
 
 # Global variables
