@@ -7,8 +7,7 @@ import proc as prc
 
 
 def about() -> str:
-    """ Displays an information window about the application.
-    """
+    """ Displays an information window about the application"""
     ABOUT = """
 Program made by:
 Yaroslav Litavrin
@@ -24,8 +23,7 @@ Ural Federal University, 2023"""
 
 
 def clear() -> None:
-    """ Cleans up file input forms and result entry paths.
-    """
+    """ Cleans up file input forms and result entry paths"""
     global files
     global out_path
     files = ""
@@ -58,8 +56,7 @@ def insert_path() -> None:
 
 
 def start() -> str:
-    """ Processes selected files by YOLO8 model.
-    """
+    """ Processes selected files by YOLO8 model"""
     if not files:
         mb.showerror("Error", "Select files to analyze")
         return "No video files selected"

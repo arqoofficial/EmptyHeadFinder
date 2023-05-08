@@ -11,8 +11,6 @@ from proc import load_model,\
 
 
 def test_project_dir():
-    """ Проверка целостности структуры папок проекта
-    """
     assert os.path.exists("./videos")
     assert os.path.exists("./videos/output")
     assert os.path.exists("./pages")
@@ -20,8 +18,6 @@ def test_project_dir():
 
 
 def test_project_files():
-    """ Проверка наличия всех критичных файлов в проекте
-    """
     assert os.path.isfile("./videos/2323.mp4")
     assert os.path.isfile("./videos/Serbian.mp4")
     assert os.path.isfile("./videos/output/out_Serbian.mp4")

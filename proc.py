@@ -5,8 +5,7 @@ from ultralyticsplus import YOLO
 
 
 def load_model(model_size: str) -> YOLO:
-    """ Loads a YOLOv8 model for the further photo or video processing.
-    """
+    """ Loads a YOLOv8 model for the further photo or video processing"""
     model = YOLO(model_size)
 
     model.overrides['conf'] = 0.3
@@ -18,14 +17,12 @@ def load_model(model_size: str) -> YOLO:
 
 
 def video_capture(video_file) -> cv2.VideoCapture:
-    """ Capture the video.
-    """
+    """ Capture the video"""
     return cv2.VideoCapture(video_file)
 
 
 def get_video_stats(vid_capture: cv2.VideoCapture) -> tuple:
-    """ Getting the statistic of video.
-    """
+    """ Gets the statistic of video"""
     frame_width = int(vid_capture.get(3))
     frame_height = int(vid_capture.get(4))
     fps = int(vid_capture.get(5))
@@ -40,8 +37,7 @@ def get_video_stats(vid_capture: cv2.VideoCapture) -> tuple:
 def create_videoreport(out_path: str,
                        filename: str,
                        video_param: tuple) -> cv2.VideoWriter:
-    """ Create video report file.
-    """
+    """ Creates video report file"""
     frame_size = video_param[0]
     fps = video_param[1]
 
@@ -58,8 +54,7 @@ def video_processing(vid_capture: cv2.VideoCapture,
                      model: YOLO,
                      process_speed: int = 1,
                      show_violation_frames: bool = False) -> None:
-    """ Main function of video processing.
-    """
+    """ Main function of video processing"""
     frame_counter = 0
     record_frame_counter = 0
 
@@ -93,9 +88,7 @@ def video_processing(vid_capture: cv2.VideoCapture,
 
 
 def detect(image: any, model: YOLO) -> bool:
-    """
-    Using YOLOv8 model, detects people without a hard hat in the photo.
-    """
+    """Using YOLOv8 model, detects people without a hard hat in the photo"""
     results = model.predict(image)
 
     # Iterations over tensors in order to locate the necessary objects
