@@ -28,7 +28,7 @@ st.markdown(
     - Pavel Okhotnikov ([PavelOkh](https://github.com/pavelokh))
 
     ## Model in Use
-    
+
     """
 )
 
