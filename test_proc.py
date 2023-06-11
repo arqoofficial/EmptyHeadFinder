@@ -34,7 +34,7 @@ def test_load_model():
     assert load_model(model_size).overrides['conf'] == 0.3
     assert load_model(model_size).overrides['iou'] == 0.45
     assert not load_model(model_size).overrides['agnostic_nms']
-    assert load_model(model_size).overrides['max_det'] == 1
+    assert load_model(model_size).overrides['max_det'] == 1000
 
 
 def test_get_video_stats():

@@ -11,7 +11,7 @@ def load_model(model_size: str) -> YOLO:
     model.overrides['conf'] = 0.3
     model.overrides['iou'] = 0.45
     model.overrides['agnostic_nms'] = False
-    model.overrides['max_det'] = 1
+    model.overrides['max_det'] = 1000
 
     return model
 
