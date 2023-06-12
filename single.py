@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
 
+from cv2 import VideoCapture
+
 import proc as prc
 from config import IMG_ICON_PATH
 
@@ -73,7 +75,7 @@ def start() -> str:
 
     for video_file in files:
         try:
-            vid_capture = prc.video_capture(video_file)
+            vid_capture = VideoCapture(video_file)
         except Exception as error_code:
             mb.showerror("Error", f"Error opening {video_file} video file.")
             return error_code

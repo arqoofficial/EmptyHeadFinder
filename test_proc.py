@@ -1,14 +1,11 @@
 import os
 import cv2
-from ultralyticsplus import YOLO
 
 from config import (
     # Internal directories pathes
     VIDEOS_DIR,
     VIDEOS_OUT_DIR,
-    VIDEOS_TMP_DIR,
     IMAGES_DIR,
-    IMAGES_TMP_DIR,
     PAGES_DIR,
     # Project files pathes
     VID_2323_PATH,
@@ -27,7 +24,6 @@ from config import (
 
 from proc import (
     load_model,
-    video_capture,
     get_video_stats,
     create_videoreport,
     detect,
@@ -82,6 +78,7 @@ def test_create_videoreport():
     )
     out_video_name = f"out_{in_video_name}"
     out_video_path = os.path.join(VIDEOS_OUT_DIR, out_video_name)
+    
     assert os.path.isfile(out_video_path)
 
     os.remove(out_video_path)
@@ -99,7 +96,7 @@ def test_detect():
 
 def test_video_processing():
     in_video_name = "test_video.mp4"
-    in_video = video_capture(VID_2323_PATH)
+    in_video = cv2.VideoCapture(VID_2323_PATH)
     out_video = create_videoreport(
         VIDEOS_OUT_DIR,
         in_video_name,

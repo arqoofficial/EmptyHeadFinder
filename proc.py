@@ -63,11 +63,6 @@ def load_model(
     return model
 
 
-def video_capture(video_file) -> cv2.VideoCapture:
-    """Capture the video"""
-    return cv2.VideoCapture(video_file)
-
-
 def get_video_stats(vid_capture: cv2.VideoCapture) -> tuple:
     """Gets the statistic of video"""
     frame_width = int(vid_capture.get(3))
