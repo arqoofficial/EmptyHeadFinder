@@ -14,7 +14,7 @@ The application uses the following fine-tuned YOLOv8 models:
 
 
 ## Model in Use
-<img src = 'https://github.com/YaRoLit/EmptyHeadFinder/blob/main/images/stroiteli_analysed.jpg' alt = 'analysed image' align='left'/>
+<img src = 'https://github.com/YaRoLit/EmptyHeadFinder/blob/main/images/stroiteli_a.jpg' alt = 'analysed image' align='left'/>
 
 
 ## Authors:
