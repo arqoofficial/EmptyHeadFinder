@@ -2,31 +2,61 @@ import os
 import cv2
 from ultralyticsplus import YOLO
 
-from proc import load_model,\
-                 video_capture,\
-                 get_video_stats,\
-                 create_videoreport,\
-                 detect,\
-                 video_processing
+from config import (
+    # Internal directories pathes
+    VIDEOS_DIR,
+    VIDEOS_OUT_DIR,
+    VIDEOS_TMP_DIR,
+    IMAGES_DIR,
+    IMAGES_TMP_DIR,
+    PAGES_DIR,
+    # Project files pathes
+    VID_2323_PATH,
+    VID_SERBIAN_PATH,
+    VID_OUT_SERBIAN_PATH,
+    IMG_CROWD_PATH,
+    IMG_ICON_PATH,
+    IMG_NASIALNIKA_PATH,
+    IMG_STROITELI_A_PATH,
+    IMG_STROITELI_PATH,
+    IMG_ZIDANE_PATH,
+    PAGE_WELCOME_PATH,
+    PAGE_1_PATH,
+    PAGE_2_PATH,
+)
 
+from proc import (
+    load_model,
+    video_capture,
+    get_video_stats,
+    create_videoreport,
+    detect,
+    video_processing
+)
 
 def test_project_dir():
-    assert os.path.exists("./videos")
-    assert os.path.exists("./videos/output")
-    assert os.path.exists("./pages")
-    assert os.path.exists("./images")
+    assert os.path.exists(VIDEOS_DIR)
+    assert os.path.exists(VIDEOS_OUT_DIR)
+    assert os.path.exists(PAGES_DIR)
+    assert os.path.exists(IMAGES_DIR)
 
 
 def test_project_files():
-    assert os.path.isfile("./videos/2323.mp4")
-    assert os.path.isfile("./videos/Serbian.mp4")
-    assert os.path.isfile("./videos/output/out_Serbian.mp4")
-    assert os.path.isfile("./pages/1_Photo 📸.py")
-    assert os.path.isfile("./pages/2_Video 📹.py")
-    assert os.path.isfile("./images/image.png")
-    assert os.path.isfile("./images/stroiteli.jpg")
-    assert os.path.isfile("./images/mnogo_stroiteley.jpg")
-
+    # Check videos
+    assert os.path.isfile(VID_2323_PATH)
+    assert os.path.isfile(VID_SERBIAN_PATH)
+    assert os.path.isfile(VID_OUT_SERBIAN_PATH)
+    # Check images
+    assert os.path.isfile(IMG_ICON_PATH)
+    assert os.path.isfile(IMG_STROITELI_PATH)
+    assert os.path.isfile(IMG_STROITELI_A_PATH)
+    assert os.path.isfile(IMG_CROWD_PATH)
+    assert os.path.isfile(IMG_ZIDANE_PATH)
+    assert os.path.isfile(IMG_NASIALNIKA_PATH)
+    # Check pages
+    assert os.path.isfile(PAGE_1_PATH)
+    assert os.path.isfile(PAGE_2_PATH)
+    assert os.path.isfile(PAGE_WELCOME_PATH)
 
 def test_load_model():
     model_size = "keremberke/yolov8m-hard-hat-detection"
@@ -38,24 +68,28 @@ def test_load_model():
 
 
 def test_get_video_stats():
-    video = cv2.VideoCapture("./videos/2323.mp4")
+    video = cv2.VideoCapture(VID_2323_PATH)
 
     assert get_video_stats(video) == ((1920, 1080), 25, 132.04)
 
 
 def test_create_videoreport():
-    create_videoreport("./videos/output",
-                       "test_video.mp4",
-                       ((1920, 1080), 25, 132.04))
+    in_video_name = "test_video.mp4"
+    create_videoreport(
+        VIDEOS_OUT_DIR,
+        in_video_name,
+        ((1920, 1080), 25, 132.04)
+    )
+    out_video_name = f"out_{in_video_name}"
+    out_video_path = os.path.join(VIDEOS_OUT_DIR, out_video_name)
+    assert os.path.isfile(out_video_path)
 
-    assert os.path.isfile("./videos/output/out_test_video.mp4")
-
-    os.remove("./videos/output/out_test_video.mp4")
+    os.remove(out_video_path)
 
 
 def test_detect():
-    img_1 = cv2.imread("./images/stroiteli.jpg")
-    img_2 = cv2.imread("./images/mnogo_stroiteley.jpg")
+    img_1 = cv2.imread(IMG_STROITELI_PATH)
+    img_2 = cv2.imread(IMG_CROWD_PATH)
     model_size = "keremberke/yolov8m-hard-hat-detection"
     model = YOLO(model_size)
 
@@ -63,12 +97,18 @@ def test_detect():
     assert not detect(img_2, model)
 
 
-def test_videoprocessing():
-    in_video = video_capture("./videos/2323.mp4")
-    out_video = create_videoreport("./videos/output",
-                                   "test_video.mp4",
-                                   ((1920, 1080), 25, 132.04))
-
+def test_video_processing():
+    in_video_name = "test_video.mp4"
+    in_video = video_capture(VID_2323_PATH)
+    out_video = create_videoreport(
+        VIDEOS_OUT_DIR,
+        in_video_name,
+        ((1920, 1080), 25, 132.04)
+    )
+    
+    out_video_name = f"out_{in_video_name}"
+    out_video_path = os.path.join(VIDEOS_OUT_DIR, out_video_name)
+    
     model_size = "keremberke/yolov8s-hard-hat-detection"
     model = YOLO(model_size)
 
@@ -77,7 +117,7 @@ def test_videoprocessing():
                      model,
                      process_speed=4)
 
-    assert os.path.isfile("./videos/output/out_test_video.mp4")
-    assert os.path.getsize("./videos/output/out_test_video.mp4") == 6029356
+    assert os.path.isfile(out_video_path)
+    assert os.path.getsize(out_video_path) == 6029356
 
-    os.remove("./videos/output/out_test_video.mp4")
+    os.remove(out_video_path)

@@ -4,7 +4,7 @@ from tkinter import filedialog as fd
 from tkinter import messagebox as mb
 
 import proc as prc
-
+from config import IMG_ICON_PATH
 
 def about() -> str:
     """ Displays an information window about the application"""
@@ -115,7 +115,7 @@ root = tk.Tk()
 root.geometry("450x300")
 root.title("Keen eye")
 
-img_file = tk.PhotoImage(file="images/image.png")
+img_file = tk.PhotoImage(file=IMG_ICON_PATH)
 tk.Button(root, image=img_file, command=about).\
     grid(row=0, column=0, columnspan=2, rowspan=8)
 
