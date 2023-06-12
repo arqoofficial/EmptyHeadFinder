@@ -2,12 +2,12 @@ import os
 import cv2
 
 from config import (
-    # Internal directories pathes
+    # Internal directories' paths
     VIDEOS_DIR,
     VIDEOS_OUT_DIR,
     IMAGES_DIR,
     PAGES_DIR,
-    # Project files pathes
+    # Project files' paths
     VID_2323_PATH,
     VID_SERBIAN_PATH,
     VID_OUT_SERBIAN_PATH,
