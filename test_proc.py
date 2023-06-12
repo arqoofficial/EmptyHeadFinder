@@ -59,7 +59,7 @@ def test_project_files():
     assert os.path.isfile(PAGE_WELCOME_PATH)
 
 def test_load_model():
-    model_size = "keremberke/yolov8m-hard-hat-detection"
+    model_size = "m"
 
     assert load_model(model_size).overrides['conf'] == 0.3
     assert load_model(model_size).overrides['iou'] == 0.45
@@ -90,8 +90,8 @@ def test_create_videoreport():
 def test_detect():
     img_1 = cv2.imread(IMG_STROITELI_PATH)
     img_2 = cv2.imread(IMG_CROWD_PATH)
-    model_size = "keremberke/yolov8m-hard-hat-detection"
-    model = YOLO(model_size)
+    model_size = "m"
+    model = load_model(model_size)
 
     assert detect(img_1, model)
     assert not detect(img_2, model)
@@ -109,8 +109,8 @@ def test_video_processing():
     out_video_name = f"out_{in_video_name}"
     out_video_path = os.path.join(VIDEOS_OUT_DIR, out_video_name)
     
-    model_size = "keremberke/yolov8s-hard-hat-detection"
-    model = YOLO(model_size)
+    model_size = "s"
+    model = load_model(model_size)
 
     video_processing(in_video,
                      out_video,

@@ -4,25 +4,72 @@ import cv2
 from ultralyticsplus import YOLO
 
 
-def load_model(model_size: str) -> YOLO:
-    """ Loads a YOLOv8 model for the further photo or video processing"""
-    model = YOLO(model_size)
+def load_model(
+    model_size: str,
+    conf: float = 0.3,
+    iou: float = 0.45,
+    agnostic_nms: bool = False,
+    max_det: int = 1000
+) -> YOLO:
+    """Loads a YOLOv8 model for the further photo or video processing"""
+    
+    # Check model_size input
+    model_sizes_list = ["n", "s", "m"]
+    if model_size in model_sizes_list:
+        model_name = f"keremberke/yolov8{model_size}-hard-hat-detection"
+    else:
+        raise ValueError(
+            f"Input correct model size! Choose from {model_sizes_list}"
+        )
+    
+    # Load model
+    model = YOLO(model_name)
 
-    model.overrides['conf'] = 0.3
-    model.overrides['iou'] = 0.45
-    model.overrides['agnostic_nms'] = False
-    model.overrides['max_det'] = 1000
+    # Check model's parameters
+    if 0 < conf <= 1:
+        pass
+    else:
+        raise ValueError(
+            f"Input correct conf value (should be in range (0, 1])!"
+        )
+        
+    if 0 < iou <= 1:
+        pass
+    else:
+        raise ValueError(
+            f"Input correct iou value (should be in range (0, 1])!"
+        )
+
+    if isinstance(agnostic_nms, bool):
+        pass
+    else:
+        raise ValueError(
+            f"Input correct agnostic_nms value (should be bool)!"
+        )
+        
+    if isinstance(max_det, int) and 0 < max_det <= 1000:
+        pass
+    else:
+        raise ValueError(
+            f"Input correct max_det (should be int and in range (0, 1000])!"
+        )
+    
+    # Change model's parameters
+    model.overrides['conf'] = conf
+    model.overrides['iou'] = iou
+    model.overrides['agnostic_nms'] = agnostic_nms
+    model.overrides['max_det'] = max_det
 
     return model
 
 
 def video_capture(video_file) -> cv2.VideoCapture:
-    """ Capture the video"""
+    """Capture the video"""
     return cv2.VideoCapture(video_file)
 
 
 def get_video_stats(vid_capture: cv2.VideoCapture) -> tuple:
-    """ Gets the statistic of video"""
+    """Gets the statistic of video"""
     frame_width = int(vid_capture.get(3))
     frame_height = int(vid_capture.get(4))
     fps = int(vid_capture.get(5))
@@ -37,7 +84,7 @@ def get_video_stats(vid_capture: cv2.VideoCapture) -> tuple:
 def create_videoreport(out_path: str,
                        filename: str,
                        video_param: tuple) -> cv2.VideoWriter:
-    """ Creates video report file"""
+    """Creates video report file"""
     frame_size = video_param[0]
     fps = video_param[1]
 
@@ -54,7 +101,7 @@ def video_processing(vid_capture: cv2.VideoCapture,
                      model: YOLO,
                      process_speed: int = 1,
                      show_violation_frames: bool = False) -> None:
-    """ Main function of video processing"""
+    """Main function of video processing"""
     frame_counter = 0
     record_frame_counter = 0
 

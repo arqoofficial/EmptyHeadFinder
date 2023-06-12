@@ -120,17 +120,17 @@ tk.Button(root, image=img_file, command=about).\
     grid(row=0, column=0, columnspan=2, rowspan=8)
 
 model_size = tk.StringVar()
-model_size.set("keremberke/yolov8m-hard-hat-detection")
+model_size.set("m")
 tk.Label(text="Model size:").\
     grid(row=0, column=2, sticky=tk.N, padx=10)
 tk.Radiobutton(text="Small", variable=model_size,
-               value="keremberke/yolov8n-hard-hat-detection").\
+               value="n").\
     grid(row=1, column=2, sticky=tk.W, padx=10)
 tk.Radiobutton(text="Medium", variable=model_size,
-               value="keremberke/yolov8s-hard-hat-detection").\
+               value="s").\
     grid(row=2, column=2, sticky=tk.W, padx=10)
 tk.Radiobutton(text="Large", variable=model_size,
-               value="keremberke/yolov8m-hard-hat-detection").\
+               value="m").\
     grid(row=3, column=2, sticky=tk.W, padx=10)
 
 process_speed = tk.IntVar()
