@@ -5,11 +5,12 @@ from tkinter import messagebox as mb
 
 from cv2 import VideoCapture
 
-import proc as prc
+import proсessing as prc
 from config import IMG_ICON_PATH
 
+
 def about() -> str:
-    """ Displays an information window about the application"""
+    """Displays an information window about the application"""
     ABOUT = """
 Program made by:
 Yaroslav Litavrin
@@ -25,7 +26,7 @@ Ural Federal University, 2023"""
 
 
 def clear() -> None:
-    """ Cleans up file input forms and result entry paths"""
+    """Cleans up file input forms and result entry paths"""
     global files
     global out_path
     files = ""
@@ -35,7 +36,7 @@ def clear() -> None:
 
 
 def insert_files() -> None:
-    """ Calls the file selection dialog box.
+    """Calls the file selection dialog box.
     The selected files (path, name) are written to a global variable.
     """
     global files
@@ -48,7 +49,7 @@ def insert_files() -> None:
 
 
 def insert_path() -> None:
-    """ Calls the dialog box for choosing the path to write the results.
+    """Calls the dialog box for choosing the path to write the results.
     The selected path is written to the global variable.
     """
     global out_path
@@ -58,7 +59,7 @@ def insert_path() -> None:
 
 
 def start() -> str:
-    """ Processes selected files by YOLO8 model"""
+    """Processes selected files by YOLO8 model"""
     if not files:
         mb.showerror("Error", "Select files to analyze")
         return "No video files selected"
