@@ -1,223 +1,265 @@
+"""Functions for GUI and files processing at streamlit pages"""
 import os
+import zipfile
+from typing import Tuple
+
+import cv2
 import streamlit as st
-import media_processing as mp
-from ultralyticsplus import YOLO
+from PIL import Image
+from ultralyticsplus import YOLO, render_result
+
+import proсessing as pr
+from config import IMAGES_TMP_DIR, VIDEOS_TMP_DIR
 
 
-def set_model():
+def load_model_st() -> YOLO:
+    """Loads a YOLOv8 model for the further photo or video processing"""
     st.sidebar.write("## Choose model")
     option = st.sidebar.selectbox(
         "**Which model would you choose?**",
-        ["m - slow model", "s - faster model", "n - the fastest model"]
+        ["m - slow model", "s - faster model", "n - the fastest model"],
     )
-
     f"You selected: {option}"
-
-    option_selected = option[0]
-
-    # load model
-    if option_selected:
-        st.write(option)
-
-        @st.cache_resource()
-        def load_model():
-            return YOLO(
-                f"keremberke/yolov8{option_selected}-hard-hat-detection"
-            )
-
-        model = load_model()
-    else:
-        model = YOLO("keremberke/yolov8n-hard-hat-detection")
-
+    model_size = option[0]
     st.sidebar.write("## Set model parameters")
+    model_sizes_list = ["n", "s", "m"]
+    if model_size in model_sizes_list:
+        model_name = f"keremberke/yolov8{model_size}-hard-hat-detection"
+    else:
+        raise ValueError(
+            f"Input correct model size! Choose from {model_sizes_list}"
+        )
 
-    conf = st.sidebar.slider(
-        'Select confidence threshold, %',
-        0, 100, 25,
-        step=1
-    )
+    @st.cache_resource()  # for proper streamlit work
+    def _load(model_name: str) -> YOLO:
+        """Loads YOLO model with specific name and cashes it.
+        Internal function.
+        """
+        model = YOLO(model_name)
+        return model
 
-    iou = st.sidebar.slider(
-        'Select IoU threshold, %',
-        0, 100, 45,
-        step=1
-    )
-
-    max_det = st.sidebar.slider(
-        'Select maximum number of detections per image',
-        0, 100, 50,
-        step=1
-    )
-
-    agnostic_nms = st.sidebar.selectbox(
-        "NMS class-agnostic",
-        [False, True]
-    )
-    model.overrides["conf"] = conf / 100  # NMS confidence threshold
-    model.overrides["iou"] = iou / 100  # NMS IoU threshold
-    model.overrides["agnostic_nms"] = agnostic_nms  # NMS class-agnostic
-    # maximum number of detections per image
-    model.overrides["max_det"] = max_det
-
+    model = _load(model_name)
     if model:
         st.success("Model loaded")
     return model
 
 
-def load_file_with_path(
-    is_photo: bool = True
-) -> None:
-    helper = """
-    Here you should paste correct path of the file you want to analyze
-    """
+def set_model_st(model: YOLO) -> YOLO:
+    """Sets and overwrites model parameters using st.sidebar"""
+    conf = st.sidebar.slider(
+        "Select confidence threshold, %",
+        0, 100, 25, step=1
+    )
+    iou = st.sidebar.slider(
+        "Select IoU threshold, %",
+        0, 100, 30, step=1
+    )
+    max_det = st.sidebar.slider(
+        "Select maximum number of detections per image",
+        0, 100, 50, step=1
+    )
+    agnostic_nms = st.sidebar.selectbox(
+        "NMS class-agnostic",
+        [False, True]
+    )
+    model.overrides["conf"] = conf / 100
+    model.overrides["iou"] = iou / 100
+    model.overrides["agnostic_nms"] = agnostic_nms
+    model.overrides["max_det"] = max_det
+    return model
+
+
+def upload_media_st(is_photo: bool = True) -> st.file_uploader:
+    """Creates st.file_uploader with predetermined files format"""
     if is_photo:
-        input_file_path = st.text_input(
-            "Input your file path",
-            value="",
-            max_chars=None,
-            key=None,
-            type="default",
-            help=helper,
-            autocomplete=None,
-            on_change=None,
-            args=None,
-            kwargs=None,
-            placeholder=None,
-            disabled=False,
-            label_visibility="visible"
-        )
-        if input_file_path:
-            input_file_path = os.path.abspath(input_file_path)
-            if os.path.isfile(input_file_path):
-                return input_file_path
-            else:
-                st.warning("Write correct path!")
-                input_file_path = None
+        supported_formats = ["png", "jpg", "jpeg"]
+        media = "photo"
     else:
-        input_file_path, output_folder_path = None, None
-        input_file_path = st.text_input(
-            "Input your file path",
-            value="",
-            max_chars=None,
-            key=None,
-            type="default",
-            help=helper,
-            autocomplete=None,
-            on_change=None,
-            args=None,
-            kwargs=None,
-            placeholder=None,
-            disabled=False,
-            label_visibility="visible"
-        )
-        if input_file_path:
-            input_file_path = os.path.abspath(input_file_path)
-            if os.path.isfile(input_file_path):
-                helper_video = """
-                Here you should paste correct path for folder of outfile
-                """
-                output_folder_path = st.text_input(
-                    "Input your outfile folder path",
-                    value="",
-                    max_chars=None,
-                    key=None,
-                    type="default",
-                    help=helper_video,
-                    autocomplete="",
-                    on_change=None,
-                    args=None,
-                    kwargs=None,
-                    placeholder=None,
-                    disabled=False,
-                    label_visibility="visible"
-                )
-                if output_folder_path:
-                    output_folder_path = os.path.abspath(output_folder_path)
-                    if os.path.exists(output_folder_path):
-                        return input_file_path, output_folder_path
-                    else:
-                        st.warning("Write correct path!")
-                        input_file_path, output_folder_path = None, None
-                        return input_file_path, output_folder_path
-            else:
-                st.warning("Write correct path!")
-                input_file_path, output_folder_path = None, None
-                return input_file_path, output_folder_path
-        return input_file_path, output_folder_path
+        supported_formats = ["mp4", "avi"]
+        media = "video"
+    supported_formats_str = ", ".join(
+        str(format) for format in supported_formats
+    )
+    helper = f"Supported {media} formats: {supported_formats_str}"
+    files = st.file_uploader(
+        f"Upload your {media}(s)",
+        accept_multiple_files=True,
+        type=supported_formats,
+        help=helper,
+    )
+    return files
 
 
-def analyze_image(
-    model: YOLO = None,
-    image: str = None
-):
-    if image is None:
+def create_tmp_folder_st(is_photo: bool = True) -> None:
+    """Creates temporary folder if it doesn't exist"""
+    if is_photo:
+        tmp_folder_path = IMAGES_TMP_DIR
+    else:
+        tmp_folder_path = VIDEOS_TMP_DIR
+    if os.path.exists(tmp_folder_path):
         pass
     else:
-        if image:
-            render, stats = mp.detect(
-                image=image,
-                model=model,
-                with_render=True
-            )
-            st.write("___")
-            st.write("## Analysed image ✅")
-            st.image(
-                render,
-                caption=None,
-                width=None,
-                use_column_width=None,
-                clamp=False,
-                channels="RGB",
-                output_format="auto"
-            )
-            st.markdown("### Statistics:")
-            st.markdown(f"Persons with hardhat: **{len(stats[1])}**")
-            st.markdown(f"Persons without hardhat: **{len(stats[0])}**")
-        else:
-            st.warning("Input something above")
+        os.mkdir(tmp_folder_path)
 
 
-def set_process_speed():
+def clear_tmp_st(directory: os.path) -> None:
+    """Clears temporary files in tmp"""
+    for file in os.scandir(directory):
+        os.remove(file.path)
+
+
+def set_process_speed_st():
+    """Sets speed of video processing at streamlit page using st.slider"""
     process_speed = st.slider(
-        'Select analysis speed',
-        1, 10, 4,
-        step=1
+        "Select analysis speed",
+        1, 10, 4, step=1
     )
     return process_speed
 
 
-def analyze_video(
-    model: YOLO = None,
-    video: str = None,
-    process_speed: int = 5,
-    out_path: str = "./"
-):
-    if video is None:
-        pass
+def detect_st(
+    image: any,
+    model: YOLO,
+) -> Tuple[Image.Image, Tuple[int, int]]:
+    """Analyzes image and returns tuple with render and hardhat stats"""
+    results = model.predict(image)
+    no_hardhat_person = []
+    hardhat_person = []
+    for box in results[0].boxes:
+        if int(box.cls) == 1:
+            no_hardhat_person.append(box.xyxy.tolist())
+        elif int(box.cls) == 0:
+            hardhat_person.append(box.xyxy.tolist())
+    render = render_result(image, model, result=results[0])
+    stats = (no_hardhat_person, hardhat_person)
+    return render, stats
+
+
+def video_processing_st(
+    model: YOLO,
+    video_file_path: os.path,
+    out_path: os.path,
+    process_speed: int = 1,
+    show_vid: bool = False,
+) -> str:
+    """Main function for video processing at streamlit pages"""
+    video_file_path = os.path.relpath(video_file_path)
+    out_path = os.path.relpath(out_path)
+    vid_capture = cv2.VideoCapture(video_file_path)
+    frame_size = pr.get_video_stats(vid_capture)[0]
+    filename = os.path.basename(video_file_path)
+    out_file = os.path.join(out_path, f"out_{filename}")
+
+    output = cv2.VideoWriter(
+        out_file,
+        cv2.VideoWriter_fourcc(*"XVID"),
+        20,
+        frame_size
+    )
+    frame_counter = 0
+    record_frames_counter = 0
+    while vid_capture.isOpened():
+        video_available, frame = vid_capture.read()
+        if video_available:
+            frame_counter += 1
+            if record_frames_counter <= 0:
+                if frame_counter % process_speed == 0:
+                    no_hardhat_person = pr.detect(frame, model)
+                    if no_hardhat_person:
+                        record_frames_counter = 30
+            else:
+                if show_vid:
+                    cv2.imshow("NoHardHat", frame)
+                output.write(frame)
+                record_frames_counter -= 1
+            key = cv2.waitKey(1)
+            if (key == ord("q")) or key == 27:
+                break
+        else:
+            break
+    vid_capture.release()
+    cv2.destroyAllWindows()
+    return out_file
+
+
+def analyze_media_st(
+    files: any,
+    model: YOLO,
+    is_photo: bool = True,
+) -> None:
+    """Analyzes photo or video at streamlit page and compile zipfile"""
+    if is_photo:
+        media = "photo"
+        tmp_folder_path = os.path.relpath(IMAGES_TMP_DIR)
     else:
-        # output_video_path = False
-        analyze_button = st.button(
-            "Analyze! 🎲",
-            key=None,
-            help=None,
-            on_click=None,
-            args=None,
-            kwargs=None,
-            type="secondary",
-            disabled=False,
-            use_container_width=False
-        )
-        if analyze_button:
+        media = "video"
+        tmp_folder_path = os.path.relpath(VIDEOS_TMP_DIR)
+        process_speed = set_process_speed_st()
+    start_button = st.button("Analyze 🎲")
+    outfiles_list = []
+    # Start analysis
+    if start_button:
+        outfiles_list = []
+        clear_tmp_st(tmp_folder_path)
+        if files:
             with st.spinner(text="In progress..."):
-                output_video_path = mp.video_processing(
-                    model=model,
-                    process_speed=process_speed,
-                    video_file_path=video,
-                    out_path=out_path,
-                    show_vid=False
-                )
-            if output_video_path:
-                st.success(f"Done! Out video is here:\n\n{output_video_path}")
-                show_video = open(output_video_path, "rb")
-                show_video_bytes = show_video.read()
-                st.video(show_video_bytes)
+                for file in files:
+                    file_name = file.name
+                    file_path = os.path.join(
+                        tmp_folder_path,
+                        file_name
+                    )
+                    with open(file_path, "wb") as temp_file:
+                        temp_file.write(file.read())
+                    # Analyze images or videos
+                    if is_photo:
+                        out_image_name = f"out_{file_name}"
+                        out_image_path = os.path.join(
+                            tmp_folder_path,
+                            out_image_name
+                        )
+                        render, stats = detect_st(file_path, model)
+                        st.write("___")
+                        st.write("## Analysed image ✅")
+                        st.image(render)
+                        st.markdown("### Statistics:")
+                        st.markdown(
+                            f"Persons without hardhat: **{len(stats[0])}**"
+                        )
+                        st.markdown(
+                            f"Persons with hardhat: **{len(stats[1])}**"
+                        )
+                        render.save(out_image_path)
+                        out_file = out_image_path
+                    else:
+                        out_file = video_processing_st(
+                            model,
+                            file_path,
+                            tmp_folder_path,
+                            process_speed=process_speed,
+                        )
+                    outfiles_list.append(out_file)
+                    # Compile an archive of video reports
+                    zip_file_path = os.path.join(
+                        tmp_folder_path,
+                        f"out_{media}s.zip"
+                    )
+                    with zipfile.ZipFile(
+                        zip_file_path,
+                        mode="a",
+                        compression=zipfile.ZIP_DEFLATED
+                    ) as zip_file:
+                        zip_file.write(out_file)
+        else:
+            st.error("Choose file(s)")
+    # Download zipfile with analised files
+    if outfiles_list:
+        st.success(f"The {media} report is ready", icon="✅")
+        with open(zip_file_path, "rb") as zip_file:
+            st.download_button(
+                label="Download archive",
+                data=zip_file,
+                file_name=zip_file_path
+            )
+        clear_tmp_st(tmp_folder_path)
+        outfiles_list = []
