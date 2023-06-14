@@ -1,7 +1,8 @@
-import os
+import streamlit as st
 from PIL import Image
 
-import streamlit as st
+from config import IMG_STROITELI_A_PATH
+
 
 st.set_page_config(
     page_title="Welcome",
@@ -32,7 +33,5 @@ st.markdown(
     """
 )
 
-stroiteli_image = Image.open(
-    os.path.relpath("./images/stroiteli_analysed.jpg")
-)
+stroiteli_image = Image.open(IMG_STROITELI_A_PATH)
 st.image(stroiteli_image)
