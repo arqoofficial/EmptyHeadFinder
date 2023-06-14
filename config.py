@@ -1,5 +1,6 @@
 import os
 
+
 # Project directory path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -28,12 +29,7 @@ PAGE_2_PATH = os.path.join(PAGES_DIR, "2_Video 📹.py")
 # Print all paths in console
 if __name__ == "__main__":
     print()
-    print(
-        "Project directory path:", 
-        BASE_DIR,
-        sep="\n", 
-        end="\n\n"
-    )
+    print("Project directory path:", BASE_DIR, sep="\n", end="\n\n")
     print(
         "Internal directories paths:",
         VIDEOS_DIR,
@@ -42,7 +38,7 @@ if __name__ == "__main__":
         IMAGES_DIR,
         IMAGES_TMP_DIR,
         PAGES_DIR,
-        sep="\n", 
+        sep="\n",
         end="\n\n"
     )
     print(
@@ -59,6 +55,6 @@ if __name__ == "__main__":
         PAGE_WELCOME_PATH,
         PAGE_1_PATH,
         PAGE_2_PATH,
-        sep="\n", 
+        sep="\n",
         end="\n\n"
     )
