@@ -23,3 +23,7 @@ The application uses the following fine-tuned YOLOv8 models:
 - Artem Golubev ([arqoofficial](https://github.com/arqoofficial))
 - Tatiana Anisimova ([t-linguist](https://github.com/t-linguist))
 - Pavel Okhotnikov ([PavelOkh](https://github.com/pavelokh))
+
+## Documentation
+
+Таня, прошу прописать, если будут вопросы - обращайся
