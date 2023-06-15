@@ -14,12 +14,16 @@ The application uses the following fine-tuned YOLOv8 models:
 
 
 ## Model in Use
-<img src = 'https://github.com/YaRoLit/EmptyHeadFinder/blob/main/images/stroiteli_analysed.jpg' alt = 'analysed image' align='left'/>
+<img src = 'https://github.com/YaRoLit/EmptyHeadFinder/blob/main/images/stroiteli_a.jpg' alt = 'analysed image' align='left'/>
 
 
 ## Authors:
 
-- Artem Golubev ([arqoofficial](https://github.com/arqoofficial))
-- Pavel Okhotnikov ([PavelOkh](https://github.com/pavelokh))
-- Tatiana Anisimova ([t-linguist](https://github.com/t-linguist))
 - Yaroslav Litavrin ([YaRoLit](https://github.com/yarolit))
+- Artem Golubev ([arqoofficial](https://github.com/arqoofficial))
+- Tatiana Anisimova ([t-linguist](https://github.com/t-linguist))
+- Pavel Okhotnikov ([PavelOkh](https://github.com/pavelokh))
+
+## Documentation
+
+Таня, прошу прописать, если будут вопросы - обращайся

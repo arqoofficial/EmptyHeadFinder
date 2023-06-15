@@ -23,9 +23,9 @@ def test_project_files():
     assert os.path.isfile("./videos/output/out_Serbian.mp4")
     assert os.path.isfile("./pages/1_Photo 📸.py")
     assert os.path.isfile("./pages/2_Video 📹.py")
-    assert os.path.isfile("./images/image.png")
+    assert os.path.isfile("./images/icon.png")
     assert os.path.isfile("./images/stroiteli.jpg")
-    assert os.path.isfile("./images/mnogo_stroiteley.jpg")
+    assert os.path.isfile("./images/crowd.jpg")
 
 
 def test_load_model():
@@ -55,7 +55,7 @@ def test_create_videoreport():
 
 def test_detect():
     img_1 = cv2.imread("./images/stroiteli.jpg")
-    img_2 = cv2.imread("./images/mnogo_stroiteley.jpg")
+    img_2 = cv2.imread("./images/crowd.jpg")
     model_size = "keremberke/yolov8m-hard-hat-detection"
     model = YOLO(model_size)
 

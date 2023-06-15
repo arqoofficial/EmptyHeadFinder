@@ -1,6 +1,9 @@
 import streamlit as st
 from PIL import Image
 
+from config import IMG_STROITELI_A_PATH
+
+
 st.set_page_config(
     page_title="Welcome",
     page_icon="👋",
@@ -8,29 +11,27 @@ st.set_page_config(
 
 st.markdown(
     """
-    # EmptyHeadFinder👷🏻‍♂️
+    # EmptyHeadFinder :construction_worker:
 
-    Данное приложение позволяет определять
-    наличие строительных касок на фото и видео
+    **EmptyHeadFinder** is designed to detect people
+     who wear a hard hat and those who do not.
 
-    ## Участники проекта:
+    The application uses the following fine-tuned YOLOv8 models:
+    1. [YOLOv8n](https://huggingface.co/keremberke/yolov8n-hard-hat-detection)
+    2. [YOLOv8s](https://huggingface.co/keremberke/yolov8s-hard-hat-detection)
+    3. [YOLOv8m](https://huggingface.co/keremberke/yolov8m-hard-hat-detection)
 
-    - Анисимова Татьяна (t-linguist)
-    - Голубев Артём (arqoofficial)
-    - Литаврин Ярослав (YaRoLit)
-    - Охотников Павел (PavelOkh)
+    ## Authors:
 
-    ## Используемые модели:
+    - Yaroslav Litavrin ([YaRoLit](https://github.com/yarolit))
+    - Artem Golubev ([arqoofficial](https://github.com/arqoofficial))
+    - Tatiana Anisimova ([t-linguist](https://github.com/t-linguist))
+    - Pavel Okhotnikov ([PavelOkh](https://github.com/pavelokh))
 
-    https://huggingface.co/keremberke/yolov8n-hard-hat-detection
+    ## Model in Use
 
-    https://huggingface.co/keremberke/yolov8s-hard-hat-detection
-
-    https://huggingface.co/keremberke/yolov8m-hard-hat-detection
-
-    ## Пример работы модели на картинке:
-    
-"""
+    """
 )
-stroiteli_image = Image.open("./images/stroiteli_analysed.jpg")
+
+stroiteli_image = Image.open(IMG_STROITELI_A_PATH)
 st.image(stroiteli_image)
