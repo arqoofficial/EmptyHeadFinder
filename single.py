@@ -3,14 +3,12 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
 
-from cv2 import VideoCapture
-
-import proсessing as prc
+import proc as prc
 from config import IMG_ICON_PATH
 
 
 def about() -> str:
-    """Displays an information window about the application"""
+    """ Displays an information window about the application"""
     ABOUT = """
 Program made by:
 Yaroslav Litavrin
@@ -26,7 +24,7 @@ Ural Federal University, 2023"""
 
 
 def clear() -> None:
-    """Cleans up file input forms and result entry paths"""
+    """ Cleans up file input forms and result entry paths"""
     global files
     global out_path
     files = ""
@@ -36,7 +34,7 @@ def clear() -> None:
 
 
 def insert_files() -> None:
-    """Calls the file selection dialog box.
+    """ Calls the file selection dialog box.
     The selected files (path, name) are written to a global variable.
     """
     global files
@@ -49,7 +47,7 @@ def insert_files() -> None:
 
 
 def insert_path() -> None:
-    """Calls the dialog box for choosing the path to write the results.
+    """ Calls the dialog box for choosing the path to write the results.
     The selected path is written to the global variable.
     """
     global out_path
@@ -59,7 +57,7 @@ def insert_path() -> None:
 
 
 def start() -> str:
-    """Processes selected files by YOLO8 model"""
+    """ Processes selected files by YOLO8 model"""
     if not files:
         mb.showerror("Error", "Select files to analyze")
         return "No video files selected"
@@ -76,7 +74,7 @@ def start() -> str:
 
     for video_file in files:
         try:
-            vid_capture = VideoCapture(video_file)
+            vid_capture = prc.video_capture(video_file)
         except Exception as error_code:
             mb.showerror("Error", f"Error opening {video_file} video file.")
             return error_code
@@ -123,17 +121,17 @@ tk.Button(root, image=img_file, command=about).\
     grid(row=0, column=0, columnspan=2, rowspan=8)
 
 model_size = tk.StringVar()
-model_size.set("m")
+model_size.set("keremberke/yolov8m-hard-hat-detection")
 tk.Label(text="Model size:").\
     grid(row=0, column=2, sticky=tk.N, padx=10)
 tk.Radiobutton(text="Small", variable=model_size,
-               value="n").\
+               value="keremberke/yolov8n-hard-hat-detection").\
     grid(row=1, column=2, sticky=tk.W, padx=10)
 tk.Radiobutton(text="Medium", variable=model_size,
-               value="s").\
+               value="keremberke/yolov8s-hard-hat-detection").\
     grid(row=2, column=2, sticky=tk.W, padx=10)
 tk.Radiobutton(text="Large", variable=model_size,
-               value="m").\
+               value="keremberke/yolov8m-hard-hat-detection").\
     grid(row=3, column=2, sticky=tk.W, padx=10)
 
 process_speed = tk.IntVar()

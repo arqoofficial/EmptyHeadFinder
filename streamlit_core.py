@@ -8,7 +8,7 @@ import streamlit as st
 from PIL import Image
 from ultralyticsplus import YOLO, render_result
 
-import proсessing as pr
+import proc as pr
 from config import IMAGES_TMP_DIR, VIDEOS_TMP_DIR
 
 
