@@ -12,9 +12,9 @@
 
 [3.1. How to Run the Pre-dployed App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-1-(the-easiest-one):-Use-the-Pre-deployed-App)
 
-[3. How to Run the Streamlit App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-2:-Run-the-Streamlit-App)
+[3.2. How to Run the Streamlit App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-2:-Run-the-Streamlit-App)
 
-[3. How to Run the Tkinter App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-3:-Run-the-Tkinter-App)
+[3.3. How to Run the Tkinter App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-3:-Run-the-Tkinter-App)
 
 [4. Authors](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Authors)
 
