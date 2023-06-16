@@ -10,7 +10,7 @@
 
 [3. How to Try the App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#How-to-Try-the-App)
 
-[3.1. How to Run the Pre-dployed App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-1-(the-easiest-one):-Use-the-Pre-deployed-App)
+[3.1. How to Run the Pre-deployed App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-1-(the-easiest-one):-Use-the-Pre-deployed-App)
 
 [3.2. How to Run the Streamlit App](https://github.com/YaRoLit/EmptyHeadFinder/blob/main/README.md#Option-2:-Run-the-Streamlit-App)
 
@@ -62,6 +62,8 @@ $ streamlit run Welcome.py
 ```
 
 ### Option 3: Run the Tkinter App
+
+Clone the repo
 
 ```
 $ git clone git@github.com:YaRoLit/EmptyHeadFinder.git
