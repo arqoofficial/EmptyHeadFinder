@@ -26,6 +26,16 @@ PAGE_WELCOME_PATH = os.path.join(BASE_DIR, "Welcome.py")
 PAGE_1_PATH = os.path.join(PAGES_DIR, "1_Photo 📸.py")
 PAGE_2_PATH = os.path.join(PAGES_DIR, "2_Video 📹.py")
 
+ABOUT = """
+Program made by:
+Yaroslav Litavrin
+Artem Golubev
+Tatiana Anisimova
+Pavel Okhotnikov
+
+Ural Federal University, 2023
+"""
+
 # Print all paths in console
 if __name__ == "__main__":
     print()
